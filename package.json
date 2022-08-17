@@ -9,13 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/wicg-file-system-access": "^2020.9.5",
     "next": "12.2.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "use-file-picker": "^1.5.1"
   },
   "devDependencies": {
-    "@types/node": "18.7.6",
+    "@types/node": "^18.7.6",
     "@types/react": "18.0.17",
     "@types/react-dom": "18.0.6",
     "autoprefixer": "^10.4.8",
