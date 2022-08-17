@@ -1,0 +1,1 @@
+Drop your facebook data into the data folder and start the application.
