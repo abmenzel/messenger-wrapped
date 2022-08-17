@@ -1,3 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .big-title {
+    @apply text-5xl text-theme-secondary font-bold
+  }
+  .sub-title {
+    @apply text-base text-theme-secondary
+  }
+  .btn-primary{
+    @apply bg-theme-secondary text-theme-primary font-bold uppercase py-2 px-4 rounded-md
+  }
+}
+
 html,
 body {
   padding: 0;
