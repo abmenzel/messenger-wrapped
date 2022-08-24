@@ -2,6 +2,7 @@
 
 # data
 data/*/
+test-data
 !data/README.md
 zips
 
