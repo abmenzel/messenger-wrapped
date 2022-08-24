@@ -4,15 +4,13 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { message, thread } from '../types/fb'
+import Label from '../components/Label'
+import Progressbar from '../components/Progressbar'
 
 const Wrap: NextPage = () => {
-	const jsonTest = '{"title": "Crypto-fl\u00c3\u00b8j"}'
-	const jsonTest2 =
-		'{"title": "\u00f0\u009f\u0098\u00a4\u00f0\u009f\u0098\u00a4CLIMATE GANG\u00f0\u009f\u0098\u00a4\u00f0\u009f\u0098\u00a4"}'
-	const json = JSON.parse(jsonTest)
-	const json2 = JSON.parse(jsonTest2)
-
+	const [abortedUpload, setAbortedUpload] = useState(false)
 	const [threads, setThreads] = useState<any[]>([])
+	const [uploadStatus, setUploadStatus] = useState<string | null>(null)
 
 	const getAllFiles = async (
 		directory: FileSystemDirectoryHandle
@@ -39,31 +37,44 @@ const Wrap: NextPage = () => {
 	// TODO:
 	// Error handling if no jsonfiles are found or user aborts
 	const openFileSelector = async () => {
-		const directory: FileSystemDirectoryHandle = await (
-			window as any
-		).showDirectoryPicker()
-		console.log('Getting all files')
-		const files = await getAllFiles(directory)
-		//files.forEach((f) => console.log(f.type))
-		console.log('Getting json files')
-		const jsonFiles = files.filter((file: File) =>
-			file.type.includes('json')
-		)
-		console.log('Getting image files')
-		const imageFiles = files.filter((file: File) =>
-			file.type.includes('image')
-		)
-		console.log('Collecting threads')
-		const threads: Map<string, thread> = await collectThreads(
-			jsonFiles,
-			imageFiles
-		)
-		console.log('Sorting threads')
-		const sorted = [...threads.values()].sort((a: any, b: any) => {
-			return b.messageCount - a.messageCount
-		})
-		console.log(sorted)
-		setThreads(sorted)
+		try {
+			setAbortedUpload(false)
+			const directory: FileSystemDirectoryHandle = await (
+				window as any
+			).showDirectoryPicker()
+			console.log('Getting all files')
+			setUploadStatus('Getting all files')
+			const files = await getAllFiles(directory)
+			//files.forEach((f) => console.log(f.type))
+			const jsonFiles = files.filter((file: File) =>
+				file.type.includes('json')
+			)
+			console.log('Getting images')
+			setUploadStatus('Getting all images')
+			const imageFiles = files.filter((file: File) =>
+				file.type.includes('image')
+			)
+			console.log('Collecting chats')
+			setUploadStatus('Collecting chats')
+			const threads: Map<string, thread> = await collectThreads(
+				jsonFiles,
+				imageFiles
+			)
+			console.log('Sorting threads')
+			setUploadStatus('Sorting chats')
+			const sorted = [...threads.values()].sort((a: any, b: any) => {
+				return b.messageCount - a.messageCount
+			})
+			console.log(sorted)
+			setThreads(sorted)
+		} catch (error: any) {
+			if (error instanceof DOMException) {
+				console.log(error)
+				setAbortedUpload(true)
+			} else {
+				console.log(error)
+			}
+		}
 	}
 
 	const decodeFBString = (str: any) => {
@@ -77,7 +88,9 @@ const Wrap: NextPage = () => {
 	const parseMessage = (message: any): message => {
 		return {
 			sender_name: message.sender_name ? message.sender_name : 'unknown',
-			content: message.content ? decodeFBString(message.content) : 'no message',
+			content: message.content
+				? decodeFBString(message.content)
+				: 'no message',
 			timestamp_ms: message.timestamp_ms,
 		}
 	}
@@ -116,7 +129,9 @@ const Wrap: NextPage = () => {
 				(acc: any[], m: any) => [...acc, parseMessage(m)],
 				[]
 			)
-			const title: string = json.title ? decodeFBString(json.title) : 'unknown'
+			const title: string = json.title
+				? decodeFBString(json.title)
+				: 'unknown'
 			const participants: string[] = json.participants.reduce(
 				(acc: string[], p: string) => [...acc, p],
 				[]
@@ -164,32 +179,76 @@ const Wrap: NextPage = () => {
 		// Click group -> Start wrapped for group
 
 		return (
-			<div className='grid grid-cols-2 gap-4 content-center'>
+			<div className='w-full grid grid-cols-2 gap-4 content-center'>
 				{data?.map((thread: any, idx: number) => {
 					return (
 						<div
 							key={thread.title + idx}
-							className='flex flex-col justify-center items-center'>
-							<div className='mb-2 aspect-square w-24 rounded-full flex flex-col text-center justify-center items-center bg-theme-secondary'>
+							className='w-full flex flex-col justify-center items-center relative'>
+							<div className='w-28 mb-2 border border-theme-secondary aspect-square rounded-full flex flex-col text-center justify-center items-center'>
 								{thread.image ? (
 									<img
 										loading='lazy'
-										className='aspect-square rounded-full w-24'
+										className='aspect-square rounded-full w-full'
 										src={URL.createObjectURL(thread.image)}
 										alt={thread.title}
 									/>
 								) : (
-									<p>?</p>
+									<p className='text-theme-secondary'>?</p>
 								)}
 							</div>
-							<p className='text-theme-secondary font-bold text-center break-words'>
+							<Label className='absolute bottom-0 mb-4 min-w-[7rem] max-w-[9rem] text-ellipsis'>
 								{thread.title}
-							</p>
+							</Label>
 						</div>
 					)
 				})}
 			</div>
 		)
+	}
+
+	const renderStep = () => {
+		switch (uploadStatus) {
+			case 'Uploading files':
+			case 'Getting all files':
+			case 'Finding all images':
+			case 'Collecting chats':
+			case 'Sorting chats':
+			case null:
+				return (
+					<div className='flex flex-col items-center'>
+						<Label className='mb-2'>Step 1</Label>
+						<h1 className='big-title text-center'>Upload data</h1>
+						<div className='flex flex-col items-center justify-center'>
+							<p className='sub-title text-center mt-2'>
+								Note that uploaded data will not be stored or
+								shared anywhere.
+							</p>
+							{uploadStatus == null ? (
+								<button
+									className='btn-primary my-6'
+									onClick={openFileSelector}>
+									{abortedUpload
+										? 'Please add data'
+										: 'Add data'}
+								</button>
+							) : (
+								<div>
+									<Progressbar max={5} step={2} className="mt-4 w-48" text={uploadStatus}/>
+								</div>
+							)}
+						</div>
+					</div>
+				)
+			case 'finished':
+				return (
+					<div className='w-full my-6 px-6'>
+						<ThreadGrid data={threads} />
+					</div>
+				)
+			default:
+				return <div></div>
+		}
 	}
 
 	return (
@@ -200,24 +259,7 @@ const Wrap: NextPage = () => {
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
 			<div className='flex flex-col items-center justify-center min-h-screen h-full bg-theme-primary'>
-				<h1 className='big-title text-center'>Pick your group</h1>
-				{threads.length > 0 ? (
-					<div className='my-6 px-6'>
-						<ThreadGrid data={threads} />
-					</div>
-				) : (
-					<div className='flex flex-col items-center justify-center'>
-						<p className='sub-title text-center mt-2'>
-							Note that uploaded data will not be stored or shared
-							anywhere.
-						</p>
-						<button
-							className='btn-primary my-6'
-							onClick={openFileSelector}>
-							Add data
-						</button>
-					</div>
-				)}
+				{renderStep()}
 			</div>
 		</div>
 	)
