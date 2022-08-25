@@ -6,11 +6,45 @@ import { useEffect, useState } from 'react'
 import { message, thread } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
+import { CSSTransition } from 'react-transition-group'
+import { Fade, FadeScale } from '../components/Animation'
+import { Intro } from '../components/Slides'
+import StageProgress from '../components/StageProgress'
 
 const Wrap: NextPage = () => {
 	const [abortedUpload, setAbortedUpload] = useState(false)
+	const [thread, setThread] = useState<thread | null>(null)
 	const [threads, setThreads] = useState<any[]>([])
-	const [uploadStatus, setUploadStatus] = useState<string | null>(null)
+	const [step, setStep] = useState('upload')
+	const [transitioning, setTransitioning] = useState(false)
+	const [stage, setStage] = useState(0)
+	const [timer, setTimer] = useState<any>(null)
+	const stages = [
+		'intro',
+		'count',
+		'top-contributors',
+		'top-lix',
+	]
+	const [uploadStatus, setUploadStatus] = useState<{
+		step: number
+		message: string
+	}>({
+		step: 0,
+		message: 'Add data',
+	})
+
+	useEffect(() => {
+		console.log("stage", stage, stages[stage])
+		if(step != 'wrap') {
+			if(timer) clearTimeout(timer)
+			return
+		}
+		const nextStage = (stage + 1) % stages.length
+		const t = setTimeout(() => {
+			setStage(nextStage)
+		},5000)
+		setTimer(t)
+	}, [stage, step])
 
 	const getAllFiles = async (
 		directory: FileSystemDirectoryHandle
@@ -35,7 +69,7 @@ const Wrap: NextPage = () => {
 	}
 
 	// TODO:
-	// Error handling if no jsonfiles are found or user aborts
+	// Error handling if no jsonfiles are found
 	const openFileSelector = async () => {
 		try {
 			setAbortedUpload(false)
@@ -43,30 +77,43 @@ const Wrap: NextPage = () => {
 				window as any
 			).showDirectoryPicker()
 			console.log('Getting all files')
-			setUploadStatus('Getting all files')
+			setUploadStatus({
+				step: 1,
+				message: 'Getting all files',
+			})
 			const files = await getAllFiles(directory)
 			//files.forEach((f) => console.log(f.type))
 			const jsonFiles = files.filter((file: File) =>
 				file.type.includes('json')
 			)
-			console.log('Getting images')
-			setUploadStatus('Getting all images')
+			setUploadStatus({
+				step: 2,
+				message: 'Getting all images',
+			})
 			const imageFiles = files.filter((file: File) =>
 				file.type.includes('image')
 			)
-			console.log('Collecting chats')
-			setUploadStatus('Collecting chats')
+			setUploadStatus({
+				step: 3,
+				message: 'Collecting chats',
+			})
 			const threads: Map<string, thread> = await collectThreads(
 				jsonFiles,
 				imageFiles
 			)
-			console.log('Sorting threads')
-			setUploadStatus('Sorting chats')
+			setUploadStatus({
+				step: 4,
+				message: 'Sorting chats',
+			})
 			const sorted = [...threads.values()].sort((a: any, b: any) => {
 				return b.messageCount - a.messageCount
 			})
-			console.log(sorted)
 			setThreads(sorted)
+			setUploadStatus({
+				step: 5,
+				message: 'Ready',
+			})
+			setStep('pick')
 		} catch (error: any) {
 			if (error instanceof DOMException) {
 				console.log(error)
@@ -183,6 +230,10 @@ const Wrap: NextPage = () => {
 				{data?.map((thread: any, idx: number) => {
 					return (
 						<div
+							onClick={() => {
+								setThread(thread)
+								setStep('wrap')
+							}}
 							key={thread.title + idx}
 							className='w-full flex flex-col justify-center items-center relative'>
 							<div className='w-28 mb-2 border border-theme-secondary aspect-square rounded-full flex flex-col text-center justify-center items-center'>
@@ -208,7 +259,8 @@ const Wrap: NextPage = () => {
 	}
 
 	const renderStep = () => {
-		switch (uploadStatus) {
+		switch (uploadStatus.message) {
+			case 'Add data':
 			case 'Uploading files':
 			case 'Getting all files':
 			case 'Finding all images':
@@ -224,7 +276,7 @@ const Wrap: NextPage = () => {
 								Note that uploaded data will not be stored or
 								shared anywhere.
 							</p>
-							{uploadStatus == null ? (
+							{uploadStatus.step == 0 ? (
 								<button
 									className='btn-primary my-6'
 									onClick={openFileSelector}>
@@ -234,13 +286,18 @@ const Wrap: NextPage = () => {
 								</button>
 							) : (
 								<div>
-									<Progressbar max={5} step={2} className="mt-4 w-48" text={uploadStatus}/>
+									<Progressbar
+										max={5}
+										step={uploadStatus.step}
+										className='mt-4 w-48'
+										text={uploadStatus.message}
+									/>
 								</div>
 							)}
 						</div>
 					</div>
 				)
-			case 'finished':
+			case 'Ready':
 				return (
 					<div className='w-full my-6 px-6'>
 						<ThreadGrid data={threads} />
@@ -258,8 +315,19 @@ const Wrap: NextPage = () => {
 				<meta name='description' content='Messenger Wrapped' />
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
-			<div className='flex flex-col items-center justify-center min-h-screen h-full bg-theme-primary'>
-				{renderStep()}
+			<div className='overflow-hidden flex flex-col items-center justify-center min-h-screen h-full bg-theme-primary text-theme-secondary'>
+				{(step == 'pick' || step == 'upload') && !transitioning && renderStep()}
+				{step == 'wrap' && <StageProgress className="absolute top-0" stage={stage} stages={stages} setStage={setStage}/>}
+				<FadeScale showIf={step == 'wrap' && stages[stage] == 'intro'} pageTransition={true} setTransitioning={setTransitioning} >
+					<Intro thread={thread} />
+				</FadeScale>
+
+				<button className="bg-black w-full text-white uppercase text-xs py-2 absolute bottom-0" onClick={() => {
+					setStep('pick')
+					setStage(0)
+					}}>
+							back
+				</button>
 			</div>
 		</div>
 	)

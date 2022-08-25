@@ -11,6 +11,19 @@ module.exports = {
           primary: "#4d2c56",
           secondary: "#e9ac8d"
         }
+      },
+      animation: {
+        width: 'width 5s linear'
+      },
+      keyframes: {
+        width: {
+          '0%': {
+            width: '0%'
+          },
+          '100%': {
+            width: '100%'
+          }
+        }
       }
     },
   },
