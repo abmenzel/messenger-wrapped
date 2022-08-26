@@ -34,7 +34,6 @@ const CountSlide = (props: any) => {
 	const {thread, type} : {thread: thread, type: string} = props
 	const [messagesDone, setMessagesDone] = useState(false)
 	const [photosDone, setPhotosDone] = useState(false)
-
 	return (
 		<div className="flex flex-col items-center">
 			<p className="big-title text-center">
@@ -43,9 +42,9 @@ const CountSlide = (props: any) => {
 			<p className="sub-title text-center animate-scaleIn opacity-0 animation-delay-500">messages</p>
 			<div className={`${messagesDone ? 'opacity-1' : 'opacity-0'} transition-all duration-500`}>
 				<p className="big-title text-center mt-8">
-					<CountUp end={thread.messageCount} duration={1} delay={1} separator={"."} onEnd={() => setPhotosDone(true)}/>
+					<CountUp end={thread.photoCount + thread.videoCount} duration={1} delay={1} separator={"."} onEnd={() => setPhotosDone(true)}/>
 				</p>
-				<p className="sub-title text-center animate-scaleIn opacity-0 animation-delay-1000">photos</p>
+				<p className="sub-title text-center animate-scaleIn opacity-0 animation-delay-1000">photos & videos</p>
 			</div>
 			<div className={`${photosDone ? 'opacity-1' : 'opacity-0'} transition-all duration-500`}>
 				<p className="big-title text-center mt-8">

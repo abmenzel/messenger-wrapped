@@ -11,12 +11,16 @@ import { Fade, FadeScale } from '../components/Animation'
 import { CountSlide, IntroSlide } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
 import { collectThreads } from '../utils/messages'
-import { getAllFiles } from '../utils/files'
+import { getAllFiles, nameToFile } from '../utils/files'
 
 const Wrap: NextPage = () => {
 	const [abortedUpload, setAbortedUpload] = useState(false)
 	const [thread, setThread] = useState<thread | null>(null)
 	const [threads, setThreads] = useState<any[]>([])
+	const [images, setImages] = useState<Map<string, File>>(new Map())
+	const [videos, setVideos] = useState<Map<string, File>>(new Map())
+	const [audio, setAudio] = useState<Map<string, File>>(new Map())
+
 	const [step, setStep] = useState('upload')
 	const [transitioning, setTransitioning] = useState<string | boolean>(false)
 	const [stage, setStage] = useState(0)
@@ -65,18 +69,37 @@ const Wrap: NextPage = () => {
 			)
 			setUploadStatus({
 				step: 2,
-				message: 'Getting all images',
+				message: 'Getting all media',
 			})
 			const imageFiles = files.filter((file: File) =>
 				file.type.includes('image')
 			)
+			const audioFiles = files.filter((file: File) =>
+				file.type.includes('audio')
+			)
+			const videoFiles = files.filter((file: File) =>
+				file.type.includes('video')
+			)
+
+			const imageMap = imageFiles.reduce(nameToFile, new Map())
+
+			const audioMap = audioFiles.reduce(nameToFile, new Map())
+
+			const videoMap = videoFiles.reduce(nameToFile, new Map())
+
+			setImages(imageMap)
+			setAudio(audioMap)
+			setVideos(videoMap)
+
 			setUploadStatus({
 				step: 3,
 				message: 'Collecting chats',
 			})
 			const threads: Map<string, thread> = await collectThreads(
 				jsonFiles,
-				imageFiles
+				imageMap,
+				audioMap,
+				videoMap,
 			)
 			setUploadStatus({
 				step: 4,
@@ -86,6 +109,8 @@ const Wrap: NextPage = () => {
 				return b.messageCount - a.messageCount
 			})
 			console.log(sorted)
+			
+
 			setThreads(sorted)
 			setUploadStatus({
 				step: 5,
@@ -143,7 +168,7 @@ const Wrap: NextPage = () => {
 			case 'Add data':
 			case 'Uploading files':
 			case 'Getting all files':
-			case 'Finding all images':
+			case 'Finding all media':
 			case 'Collecting chats':
 			case 'Sorting chats':
 			case null:

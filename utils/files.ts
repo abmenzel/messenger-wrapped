@@ -1,11 +1,18 @@
-const tryFindImage = (files: File[], imagePath: string): File | null => {
-    const imagePathParts = imagePath.split('/')
-    const fileName = imagePathParts[imagePathParts.length - 1]
-    const match = files.find((img) => img.name == fileName)
-    if (match) {
-        return match
-    } else {
-        return null
+const tryFindFiles = (fileMap: Map<string, File>, paths: string[]) : (File | undefined)[] => {
+    const files = paths.reduce((acc: (File | undefined)[], path: string) => {
+        acc.push(tryFindFile(fileMap, path))
+        return acc
+    },[])
+    return files
+}
+
+const tryFindFile = (fileMap: Map<string, File>, path: string) : File | undefined => {
+    const pathParts = path.split('/')
+    const fileName = pathParts[pathParts.length - 1]
+    if(fileMap.has(fileName)){
+        return fileMap.get(fileName)
+    }else{
+        return undefined
     }
 }
 
@@ -31,4 +38,9 @@ const getAllFiles = async (
     }
 }
 
-export {getAllFiles, tryFindImage}
+const nameToFile = (acc: Map<string, File>, image: File) => {
+    acc.set(image.name, image)
+    return acc
+}
+
+export {getAllFiles, tryFindFile, tryFindFiles, nameToFile}
