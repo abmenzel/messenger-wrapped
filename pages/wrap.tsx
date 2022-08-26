@@ -108,6 +108,7 @@ const Wrap: NextPage = () => {
 			const sorted = [...threads.values()].sort((a: any, b: any) => {
 				return b.messageCount - a.messageCount
 			})
+			console.log(sorted)
 			setThreads(sorted)
 			setUploadStatus({
 				step: 5,

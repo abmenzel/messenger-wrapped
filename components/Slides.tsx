@@ -5,6 +5,17 @@ import Label from './Label'
 
 // INTRO -> The journey began in xxx ... In xxx you're still going strong
 // MESSAGECOUNT -> xxxxx messages sent, how many more will come?
+// MOST LIKED MESSAGES
+// PHOTO COUNT
+// MOST LIKED PHOTOS
+// LYDTIMER
+// MOST LIKED SOUNDS
+// TOP CONTRIBUTORS
+// LEAST CONTRIBUTORS
+// LÆNGST BESKEDER
+// LIX-TAL
+// TIMELINE
+// 
 
 const Intro = (props: any) => {
     const {thread} : {thread: thread} = props
