@@ -13,7 +13,8 @@ module.exports = {
         }
       },
       animation: {
-        width: 'width 5s linear'
+        width: 'width 5s linear',
+        scaleIn: 'scaleIn 1s ease-in-out forwards'
       },
       keyframes: {
         width: {
@@ -23,9 +24,21 @@ module.exports = {
           '100%': {
             width: '100%'
           }
-        }
+        },
+        scaleIn: {
+          '0%': {
+            transform: 'scale(1.1)',
+            opacity: '0'
+          },
+          '100%': {
+            transform: 'scale(1)',
+            opacity: '1'
+          } 
+        } 
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require("tailwindcss-animation-delay"),
+  ],
 }

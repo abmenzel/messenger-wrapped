@@ -1,30 +1,29 @@
 import React from 'react'
 import { CSSTransition } from 'react-transition-group'
 
-
-
 const Fade = (props: any) => {
 	const { children, showIf, pageTransition, setTransitioning } = props
 	return (
 		<CSSTransition
 			in={showIf}
-            unmountOnExit={true}
-            onEnter={() => {
-                if(!pageTransition) return
-                setTransitioning(true)
-            }}
-            onExit={() => {
-                if(!pageTransition) return
-                setTransitioning(true)
-            }}
-            onEntered={() => {
-                if(!pageTransition) return
-                setTransitioning(false)
-            }}
-            onExited={() => {
-                if(!pageTransition) return
-                setTransitioning(false)
-            }}			timeout={500}
+			unmountOnExit={true}
+			onEnter={() => {
+				if (!pageTransition) return
+				setTransitioning(true)
+			}}
+			onExit={() => {
+				if (!pageTransition) return
+				setTransitioning(true)
+			}}
+			onEntered={() => {
+				if (!pageTransition) return
+				setTransitioning(false)
+			}}
+			onExited={() => {
+				if (!pageTransition) return
+				setTransitioning(false)
+			}}
+			timeout={500}
 			classNames={{
 				enter: 'opacity-0',
 				enterActive: 'opacity-1',
@@ -39,27 +38,15 @@ const Fade = (props: any) => {
 }
 
 const FadeScale = (props: any) => {
-	const { children, showIf, pageTransition, setTransitioning } = props
+	const { children, showIf, exitCallback } = props
 	return (
 		<CSSTransition
 			in={showIf}
-            unmountOnExit={true}
-            onEnter={() => {
-                if(!pageTransition) return
-                setTransitioning(true)
-            }}
-            onExit={() => {
-                if(!pageTransition) return
-                setTransitioning(true)
-            }}
-            onEntered={() => {
-                if(!pageTransition) return
-                setTransitioning(false)
-            }}
-            onExited={() => {
-                if(!pageTransition) return
-                setTransitioning(false)
-            }}			timeout={500}
+			unmountOnExit={true}
+			onExited={() => {
+                exitCallback()
+			}}
+			timeout={500}
 			classNames={{
 				enter: 'opacity-0 scale-110',
 				enterActive: 'opacity-1 scale-110',
@@ -78,23 +65,24 @@ const Scale = (props: any) => {
 	return (
 		<CSSTransition
 			in={showIf}
-            unmountOnExit={true}
-            onEnter={() => {
-                if(!pageTransition) return
-                setTransitioning(true)
-            }}
-            onExit={() => {
-                if(!pageTransition) return
-                setTransitioning(true)
-            }}
-            onEntered={() => {
-                if(!pageTransition) return
-                setTransitioning(false)
-            }}
-            onExited={() => {
-                if(!pageTransition) return
-                setTransitioning(false)
-            }}			timeout={500}
+			unmountOnExit={true}
+			onEnter={() => {
+				if (!pageTransition) return
+				setTransitioning(true)
+			}}
+			onExit={() => {
+				if (!pageTransition) return
+				setTransitioning(true)
+			}}
+			onEntered={() => {
+				if (!pageTransition) return
+				setTransitioning(false)
+			}}
+			onExited={() => {
+				if (!pageTransition) return
+				setTransitioning(false)
+			}}
+			timeout={500}
 			classNames={{
 				enter: 'scale-110',
 				enterActive: 'scale-110',

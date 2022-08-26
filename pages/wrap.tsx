@@ -8,23 +8,21 @@ import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
 import { CSSTransition } from 'react-transition-group'
 import { Fade, FadeScale } from '../components/Animation'
-import { Intro } from '../components/Slides'
+import { CountSlide, IntroSlide } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
+import { collectThreads } from '../utils/messages'
+import { getAllFiles } from '../utils/files'
 
 const Wrap: NextPage = () => {
 	const [abortedUpload, setAbortedUpload] = useState(false)
 	const [thread, setThread] = useState<thread | null>(null)
 	const [threads, setThreads] = useState<any[]>([])
 	const [step, setStep] = useState('upload')
-	const [transitioning, setTransitioning] = useState(false)
+	const [transitioning, setTransitioning] = useState<string | boolean>(false)
 	const [stage, setStage] = useState(0)
+	const [animateStage, setAnimateStage] = useState<number>(0)
 	const [timer, setTimer] = useState<any>(null)
-	const stages = [
-		'intro',
-		'count',
-		'top-contributors',
-		'top-lix',
-	]
+	const stages = ['intro', 'messageCount']
 	const [uploadStatus, setUploadStatus] = useState<{
 		step: number
 		message: string
@@ -34,39 +32,18 @@ const Wrap: NextPage = () => {
 	})
 
 	useEffect(() => {
-		console.log("stage", stage, stages[stage])
-		if(step != 'wrap') {
-			if(timer) clearTimeout(timer)
+		if (timer) clearTimeout(timer)
+		if (step != 'wrap') {
 			return
 		}
 		const nextStage = (stage + 1) % stages.length
 		const t = setTimeout(() => {
 			setStage(nextStage)
-		},5000)
+		}, 5000)
 		setTimer(t)
 	}, [stage, step])
 
-	const getAllFiles = async (
-		directory: FileSystemDirectoryHandle
-	): Promise<File[]> => {
-		try {
-			const allFilePromises: Promise<File>[] = []
-			const findFiles = async (subdir: FileSystemDirectoryHandle) => {
-				for await (const entry of subdir.values()) {
-					if (entry.kind === 'file') {
-						allFilePromises.push(entry.getFile())
-					} else {
-						await findFiles(entry)
-					}
-				}
-			}
-			await findFiles(directory)
-			const allFiles: File[] = await Promise.all(allFilePromises)
-			return allFiles
-		} catch (err) {
-			throw new Error('Error occured while reading directory')
-		}
-	}
+	
 
 	// TODO:
 	// Error handling if no jsonfiles are found
@@ -125,106 +102,8 @@ const Wrap: NextPage = () => {
 		}
 	}
 
-	const decodeFBString = (str: any) => {
-		let arr = []
-		for (var i = 0; i < str.length; i++) {
-			arr.push(str.charCodeAt(i))
-		}
-		return Buffer.from(arr).toString('utf8')
-	}
-
-	const parseMessage = (message: any): message => {
-		return {
-			sender_name: message.sender_name ? message.sender_name : 'unknown',
-			content: message.content
-				? decodeFBString(message.content)
-				: 'no message',
-			timestamp_ms: message.timestamp_ms,
-		}
-	}
-
-	const tryFindImage = (files: File[], imagePath: string): File | null => {
-		const imagePathParts = imagePath.split('/')
-		const fileName = imagePathParts[imagePathParts.length - 1]
-		const match = files.find((img) => img.name == fileName)
-		if (match) {
-			return match
-		} else {
-			return null
-		}
-	}
-
-	const collectThreads = async (
-		files: File[],
-		imageFiles: File[]
-	): Promise<Map<string, thread>> => {
-		const threads: Map<string, thread> = new Map()
-
-		// Create thread map
-		for await (const file of files) {
-			const content = await file.text()
-			const json = await JSON.parse(content)
-			const path = json.thread_path
-			if (
-				!(json.participants?.length > 2) ||
-				!json.messages ||
-				!json.title
-			)
-				continue
-
-			const messageCount: number = parseInt(json.messages.length)
-			const messages: message[] = json.messages.reduce(
-				(acc: any[], m: any) => [...acc, parseMessage(m)],
-				[]
-			)
-			const title: string = json.title
-				? decodeFBString(json.title)
-				: 'unknown'
-			const participants: string[] = json.participants.reduce(
-				(acc: string[], p: string) => [...acc, p],
-				[]
-			)
-			const image: File | null = json.image
-				? tryFindImage(imageFiles, json.image.uri)
-				: null
-
-			if (threads.has(path)) {
-				const prev: thread | undefined = threads.get(path)
-				if (!prev) continue
-				threads.set(path, {
-					...prev,
-					messageCount: messageCount + prev.messageCount,
-					files: [file, ...prev.files],
-					title: title,
-					messages: [...messages, ...prev.messages],
-					participants: prev.participants,
-				})
-			} else {
-				threads.set(path, {
-					messageCount: messageCount,
-					files: [file],
-					title: title,
-					messages: messages,
-					participants: participants,
-					image: image,
-				})
-			}
-		}
-
-		// Sort messages
-		threads.forEach((thread) => {
-			thread.messages.sort((a, b) => a.timestamp_ms - b.timestamp_ms)
-		})
-
-		return threads
-	}
-
 	const ThreadGrid = (props: any) => {
 		const { data } = props
-
-		// TODO:
-		// Sort message timestamps
-		// Click group -> Start wrapped for group
 
 		return (
 			<div className='w-full grid grid-cols-2 gap-4 content-center'>
@@ -309,6 +188,16 @@ const Wrap: NextPage = () => {
 		}
 	}
 
+	useEffect(() => {
+	}, [stage])
+
+	useEffect(() => {
+	}, [animateStage])
+
+	const nextStage = () => {
+		setAnimateStage((animateStage + 1) % stages.length)
+	}
+
 	return (
 		<div>
 			<Head>
@@ -317,17 +206,44 @@ const Wrap: NextPage = () => {
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
 			<div className='overflow-hidden flex flex-col items-center justify-center min-h-screen h-full bg-theme-primary text-theme-secondary'>
-				{(step == 'pick' || step == 'upload') && !transitioning && renderStep()}
-				{step == 'wrap' && <StageProgress className="absolute top-0" stage={stage} stages={stages} setStage={setStage}/>}
-				<FadeScale showIf={step == 'wrap' && stages[stage] == 'intro'} pageTransition={true} setTransitioning={setTransitioning} >
-					<Intro thread={thread} />
+				{(step == 'pick' || step == 'upload') &&
+					!transitioning &&
+					renderStep()}
+				{step == 'wrap' && (
+					<StageProgress
+						className='absolute top-0'
+						stage={stage}
+						stages={stages}
+						setStage={setStage}
+					/>
+				)}
+				<FadeScale
+					showIf={
+						step == 'wrap' &&
+						stages[stage] == 'intro' &&
+						stages[animateStage] == 'intro'
+					}
+					exitCallback={() => nextStage()}>
+					<IntroSlide thread={thread} />
 				</FadeScale>
 
-				<button className="bg-black w-full text-white uppercase text-xs py-2 absolute bottom-0" onClick={() => {
-					setStep('pick')
-					setStage(0)
+				<FadeScale
+					showIf={
+						step == 'wrap' &&
+						stages[stage] == 'messageCount' &&
+						stages[animateStage] == 'messageCount'
+					}
+					exitCallback={() => nextStage()}>
+					<CountSlide type={'messages'} thread={thread} />
+				</FadeScale>
+
+				<button
+					className='bg-black w-full text-white uppercase text-xs py-2 absolute bottom-0'
+					onClick={() => {
+						setStep('pick')
+						setStage(0)
 					}}>
-							back
+					back
 				</button>
 			</div>
 		</div>
