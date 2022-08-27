@@ -3,30 +3,57 @@ import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { message, thread } from '../types/fb'
+import { message, thread, threadExcerpt } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
 import { CSSTransition } from 'react-transition-group'
 import { Fade, FadeScale } from '../components/Animation'
-import { CountSlide, IntroSlide } from '../components/Slides'
+import { ContributorsSlide, CountSlide, IntroSlide } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
-import { collectThreads } from '../utils/messages'
+import {
+	collectThread,
+	collectThreadExcerpts,
+	messageCountReducer,
+	messageLengthReducer,
+} from '../utils/messages'
 import { getAllFiles, nameToFile } from '../utils/files'
+import ThreadGrid from '../components/ThreadGrid'
 
 const Wrap: NextPage = () => {
 	const [abortedUpload, setAbortedUpload] = useState(false)
-	const [thread, setThread] = useState<thread | null>(null)
+	const [thread, setThread] = useState<threadExcerpt | null>(null)
+	const [threadData, setThreadData] = useState<thread | null>(null)
 	const [threads, setThreads] = useState<any[]>([])
-	const [images, setImages] = useState<Map<string, File>>(new Map())
-	const [videos, setVideos] = useState<Map<string, File>>(new Map())
-	const [audio, setAudio] = useState<Map<string, File>>(new Map())
+	const [audioMap, setAudioMap] = useState<any>(null)
+	const [imageMap, setImageMap] = useState<any>(null)
+	const [videoMap, setVideoMap] = useState<any>(null)
 
-	const [step, setStep] = useState('upload')
-	const [transitioning, setTransitioning] = useState<string | boolean>(false)
 	const [stage, setStage] = useState(0)
 	const [animateStage, setAnimateStage] = useState<number>(0)
 	const [timer, setTimer] = useState<any>(null)
-	const stages = ['intro', 'messageCount']
+	const wrapStart = 3
+	const stages = [
+		'upload',
+		'pick',
+		'collect',
+		'intro',
+		'messageCount',
+		'topContributors',
+		'longestMessages',
+	]
+
+	const activeStage = () => stages[stage]
+
+	const activeAnimatedStage = () => stages[animateStage]
+
+	const setStageByName = (stageName: string) =>
+		setStage(stages.findIndex((elm) => elm == stageName))
+
+	const wrapTime = () => stage > wrapStart - 1
+
+	const canShow = (stageName: string) =>
+		activeStage() == stageName && activeAnimatedStage() == stageName
+
 	const [uploadStatus, setUploadStatus] = useState<{
 		step: number
 		message: string
@@ -37,17 +64,15 @@ const Wrap: NextPage = () => {
 
 	useEffect(() => {
 		if (timer) clearTimeout(timer)
-		if (step != 'wrap') {
+		if (!wrapTime()) {
 			return
 		}
 		const nextStage = (stage + 1) % stages.length
 		const t = setTimeout(() => {
-			setStage(nextStage)
+			setStage(nextStage < wrapStart ? wrapStart : nextStage)
 		}, 5000)
 		setTimer(t)
-	}, [stage, step])
-
-	
+	}, [stage])
 
 	// TODO:
 	// Error handling if no jsonfiles are found
@@ -74,33 +99,27 @@ const Wrap: NextPage = () => {
 			const imageFiles = files.filter((file: File) =>
 				file.type.includes('image')
 			)
-			const audioFiles = files.filter((file: File) =>
-				file.type.includes('audio')
-			)
+
 			const videoFiles = files.filter((file: File) =>
 				file.type.includes('video')
 			)
 
 			const imageMap = imageFiles.reduce(nameToFile, new Map())
 
-			const audioMap = audioFiles.reduce(nameToFile, new Map())
+			const audioMap = videoFiles.reduce(nameToFile, new Map()) // Audio files are .mp4 files
 
 			const videoMap = videoFiles.reduce(nameToFile, new Map())
 
-			setImages(imageMap)
-			setAudio(audioMap)
-			setVideos(videoMap)
+			setImageMap(imageMap)
+			setAudioMap(audioMap)
+			setVideoMap(videoMap)
 
 			setUploadStatus({
 				step: 3,
 				message: 'Collecting chats',
 			})
-			const threads: Map<string, thread> = await collectThreads(
-				jsonFiles,
-				imageMap,
-				audioMap,
-				videoMap,
-			)
+			const threads: Map<string, threadExcerpt> =
+				await collectThreadExcerpts(jsonFiles, imageMap)
 			setUploadStatus({
 				step: 4,
 				message: 'Sorting chats',
@@ -109,14 +128,13 @@ const Wrap: NextPage = () => {
 				return b.messageCount - a.messageCount
 			})
 			console.log(sorted)
-			
 
 			setThreads(sorted)
 			setUploadStatus({
 				step: 5,
 				message: 'Ready',
 			})
-			setStep('pick')
+			setStageByName('pick')
 		} catch (error: any) {
 			if (error instanceof DOMException) {
 				console.log(error)
@@ -125,42 +143,6 @@ const Wrap: NextPage = () => {
 				console.log(error)
 			}
 		}
-	}
-
-	const ThreadGrid = (props: any) => {
-		const { data } = props
-
-		return (
-			<div className='w-full grid grid-cols-2 gap-4 content-center'>
-				{data?.map((thread: any, idx: number) => {
-					return (
-						<div
-							onClick={() => {
-								setThread(thread)
-								setStep('wrap')
-							}}
-							key={thread.title + idx}
-							className='w-full flex flex-col justify-center items-center relative'>
-							<div className='w-28 mb-2 border border-theme-secondary aspect-square rounded-full flex flex-col text-center justify-center items-center'>
-								{thread.image ? (
-									<img
-										loading='lazy'
-										className='aspect-square rounded-full w-full'
-										src={URL.createObjectURL(thread.image)}
-										alt={thread.title}
-									/>
-								) : (
-									<p className='text-theme-secondary'>?</p>
-								)}
-							</div>
-							<Label className='absolute bottom-0 mb-4 min-w-[7rem] max-w-[9rem] text-ellipsis'>
-								{thread.title}
-							</Label>
-						</div>
-					)
-				})}
-			</div>
-		)
 	}
 
 	const renderStep = () => {
@@ -202,25 +184,65 @@ const Wrap: NextPage = () => {
 						</div>
 					</div>
 				)
-			case 'Ready':
-				return (
-					<div className='w-full my-6 px-6'>
-						<ThreadGrid data={threads} />
-					</div>
-				)
 			default:
 				return <div></div>
 		}
 	}
 
+	const handleThreadChange = async (thread: threadExcerpt) => {
+		const threadData = await collectThread(
+			thread,
+			imageMap,
+			audioMap,
+			videoMap,
+			setUploadStatus
+		)
+		setThreadData(threadData)
+	}
+
 	useEffect(() => {
+		if(threads.length == 0){
+			setStageByName('upload')
+			return
+		}
+		if (thread != null) {
+			handleThreadChange(thread)
+			setStageByName('collect')
+		} else {
+			setStageByName('pick')
+		}
+	}, [thread])
+
+	useEffect(() => {
+		if(threads.length == 0){
+			setStageByName('upload')
+			return
+		}
+		if (!threadData) {
+			setStageByName('pick')
+			return
+		}
+		setStageByName('intro')
+
+	}, [threadData])
+
+	useEffect(() => {
+		console.log('Switched to stage', stages[stage])
+		setTimeout(() => {
+			setAnimateStage(stage)
+		}, 500)
 	}, [stage])
 
 	useEffect(() => {
+		console.log('Can now animate stage', stages[animateStage])
+		if (stages[animateStage] == 'pick') {
+			setThread(null)
+		}
 	}, [animateStage])
 
 	const nextStage = () => {
-		setAnimateStage((animateStage + 1) % stages.length)
+		console.log('going to next stage')
+		setStage((stage + 1) % stages.length)
 	}
 
 	return (
@@ -231,45 +253,78 @@ const Wrap: NextPage = () => {
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
 			<div className='overflow-hidden flex flex-col items-center justify-center min-h-screen h-full bg-theme-primary text-theme-secondary'>
-				{(step == 'pick' || step == 'upload') &&
-					!transitioning &&
-					renderStep()}
-				{step == 'wrap' && (
+				{activeStage() == 'upload' && renderStep()}
+				<FadeScale showIf={canShow('collect') && thread != null}>
+					<div className='w-full my-6 px-6 flex justify-center'>
+						<Progressbar
+							max={thread ? thread.files.length + 2 : 2}
+							step={uploadStatus.step}
+							className='mt-4 w-48'
+							text={uploadStatus.message}
+						/>{' '}
+					</div>
+				</FadeScale>
+				<FadeScale showIf={canShow('pick')}>
+					<div className='w-full my-6 px-6'>
+						<ThreadGrid data={threads} setThread={setThread} />
+					</div>
+				</FadeScale>
+
+				{wrapTime() && (
 					<StageProgress
 						className='absolute top-0'
+						offset={wrapStart}
 						stage={stage}
 						stages={stages}
 						setStage={setStage}
 					/>
 				)}
-				<FadeScale
-					showIf={
-						step == 'wrap' &&
-						stages[stage] == 'intro' &&
-						stages[animateStage] == 'intro'
-					}
-					exitCallback={() => nextStage()}>
-					<IntroSlide thread={thread} />
+
+				<FadeScale showIf={wrapTime() && canShow('intro')}>
+					<IntroSlide thread={threadData} />
 				</FadeScale>
 
-				<FadeScale
-					showIf={
-						step == 'wrap' &&
-						stages[stage] == 'messageCount' &&
-						stages[animateStage] == 'messageCount'
-					}
-					exitCallback={() => nextStage()}>
-					<CountSlide type={'messages'} thread={thread} />
+				<FadeScale showIf={wrapTime() && canShow('messageCount')}>
+					<CountSlide type={'messages'} thread={threadData} />
 				</FadeScale>
 
-				<button
-					className='bg-black w-full text-white uppercase text-xs py-2 absolute bottom-0'
-					onClick={() => {
-						setStep('pick')
-						setStage(0)
-					}}>
-					back
-				</button>
+				<FadeScale showIf={wrapTime() && canShow('topContributors')}>
+					<ContributorsSlide
+						total={threadData?.messageCount}
+						reducer={messageCountReducer}
+						title={'Most messages'}
+						text={'messages'}
+						thread={threadData}
+					/>
+				</FadeScale>
+
+				<FadeScale showIf={wrapTime() && canShow('longestMessages')}>
+					<ContributorsSlide
+						total={threadData?.messages.reduce((acc, m) => {
+							return (m.content ? m.content.length : 0) + acc
+						}, 0)}
+						reducer={messageLengthReducer}
+						title={'Longest messages'}
+						text={'characters'}
+						thread={threadData}
+					/>
+				</FadeScale>
+				<div className='flex justify-center bg-black w-full text-white uppercase text-xs py-2 absolute bottom-0'>
+					<button
+						className='w-1/2'
+						onClick={() => {
+							setStageByName('pick')
+						}}>
+						back
+					</button>
+					<button
+						className='w-1/2'
+						onClick={() => {
+							clearTimeout(timer)
+						}}>
+						pause
+					</button>
+				</div>
 			</div>
 		</div>
 	)

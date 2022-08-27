@@ -1,15 +1,16 @@
 import React, { useEffect, useRef } from 'react'
 
 const StageProgress = (props: any) => {
-    const {className, stages, stage, setStage} = props
+    const {className, stages, stage, setStage, offset} = props
 
+    const renderStages = offset ? stages.slice(offset, stages.length) : stages
     return (
         <div className={`flex w-full ${className}`}>
-            {stages.map((s: any, idx: number) => {
+            {renderStages.map((s: any, idx: number) => {
                 return (
-                    <div onClick={() => {setStage(idx)}} key={idx} className="p-1 grow">
+                    <div onClick={() => {setStage(idx + offset)}} key={idx + offset} className="p-1 grow">
                         <div className="bg-black opacity-25 h-1 w-full">
-                            <div className={`${idx == stage ? 'animate-width' : ''} ease-linear h-full bg-white ${idx < stage ? 'w-full' : 'w-0'}`}></div>
+                            <div className={`${idx + offset == stage ? 'animate-width' : ''} ease-linear h-full bg-white ${idx + offset < stage ? 'w-full' : 'w-0'}`}></div>
                         </div>
                     </div>
                 )

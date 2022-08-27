@@ -44,7 +44,7 @@ const FadeScale = (props: any) => {
 			in={showIf}
 			unmountOnExit={true}
 			onExited={() => {
-                exitCallback()
+                exitCallback && exitCallback()
 			}}
 			timeout={500}
 			classNames={{
@@ -54,7 +54,7 @@ const FadeScale = (props: any) => {
 				exit: 'opacity-0 scale-90',
 				exitDone: 'opacity-0 scale-90',
 			}}
-			className='opacity-0 scale-110 transition-all duration-500'>
+			className='w-full opacity-0 scale-110 transition-all duration-500'>
 			<div>{children}</div>
 		</CSSTransition>
 	)
