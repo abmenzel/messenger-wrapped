@@ -14,7 +14,9 @@ module.exports = {
       },
       animation: {
         width: 'width 5s linear',
-        scaleIn: 'scaleIn 1s ease-in-out forwards'
+        scaleIn: 'scaleIn 0.5s ease-in-out forwards',
+        scaleUp: 'scaleUp 0.5s ease-in-out forwards',
+        bounceIn: 'bounceIn 0.2s ease-out forwards',
       },
       keyframes: {
         width: {
@@ -28,6 +30,27 @@ module.exports = {
         scaleIn: {
           '0%': {
             transform: 'scale(1.1)',
+            opacity: '0'
+          },
+          '100%': {
+            transform: 'scale(1)',
+            opacity: '1'
+          } 
+        },
+        bounceIn: {
+          '0%': {
+            transform: 'scale(1)',
+          },
+          '50%': {
+            transform: 'scale(0.9)',
+          },
+          '100%': {
+            transform: 'scale(1)',
+          } 
+        },
+        scaleUp: {
+          '0%': {
+            transform: 'scale(0.5)',
             opacity: '0'
           },
           '100%': {

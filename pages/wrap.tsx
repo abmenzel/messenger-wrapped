@@ -18,6 +18,7 @@ import {
 } from '../utils/messages'
 import { getAllFiles, nameToFile } from '../utils/files'
 import ThreadGrid from '../components/ThreadGrid'
+import Upload from '../components/Upload'
 
 const Wrap: NextPage = () => {
 	const [abortedUpload, setAbortedUpload] = useState(false)
@@ -28,7 +29,7 @@ const Wrap: NextPage = () => {
 	const [imageMap, setImageMap] = useState<any>(null)
 	const [videoMap, setVideoMap] = useState<any>(null)
 
-	const [stage, setStage] = useState(0)
+	const [stage, setStage] = useState(-1)
 	const [animateStage, setAnimateStage] = useState<number>(0)
 	const [timer, setTimer] = useState<any>(null)
 	const wrapStart = 3
@@ -73,6 +74,10 @@ const Wrap: NextPage = () => {
 		}, 5000)
 		setTimer(t)
 	}, [stage])
+
+	useEffect(() => {
+		setStage(0)
+	}, [])
 
 	// TODO:
 	// Error handling if no jsonfiles are found
@@ -145,50 +150,6 @@ const Wrap: NextPage = () => {
 		}
 	}
 
-	const renderStep = () => {
-		switch (uploadStatus.message) {
-			case 'Add data':
-			case 'Uploading files':
-			case 'Getting all files':
-			case 'Finding all media':
-			case 'Collecting chats':
-			case 'Sorting chats':
-			case null:
-				return (
-					<div className='flex flex-col items-center'>
-						<Label className='mb-2'>Step 1</Label>
-						<h1 className='big-title text-center'>Upload data</h1>
-						<div className='flex flex-col items-center justify-center'>
-							<p className='sub-title text-center mt-2'>
-								Note that uploaded data will not be stored or
-								shared anywhere.
-							</p>
-							{uploadStatus.step == 0 ? (
-								<button
-									className='btn-primary my-6'
-									onClick={openFileSelector}>
-									{abortedUpload
-										? 'Please add data'
-										: 'Add data'}
-								</button>
-							) : (
-								<div>
-									<Progressbar
-										max={5}
-										step={uploadStatus.step}
-										className='mt-4 w-48'
-										text={uploadStatus.message}
-									/>
-								</div>
-							)}
-						</div>
-					</div>
-				)
-			default:
-				return <div></div>
-		}
-	}
-
 	const handleThreadChange = async (thread: threadExcerpt) => {
 		const threadData = await collectThread(
 			thread,
@@ -201,7 +162,7 @@ const Wrap: NextPage = () => {
 	}
 
 	useEffect(() => {
-		if(threads.length == 0){
+		if (threads.length == 0) {
 			setStageByName('upload')
 			return
 		}
@@ -214,7 +175,7 @@ const Wrap: NextPage = () => {
 	}, [thread])
 
 	useEffect(() => {
-		if(threads.length == 0){
+		if (threads.length == 0) {
 			setStageByName('upload')
 			return
 		}
@@ -223,14 +184,13 @@ const Wrap: NextPage = () => {
 			return
 		}
 		setStageByName('intro')
-
 	}, [threadData])
 
 	useEffect(() => {
 		console.log('Switched to stage', stages[stage])
 		setTimeout(() => {
 			setAnimateStage(stage)
-		}, 500)
+		}, 300)
 	}, [stage])
 
 	useEffect(() => {
@@ -240,11 +200,6 @@ const Wrap: NextPage = () => {
 		}
 	}, [animateStage])
 
-	const nextStage = () => {
-		console.log('going to next stage')
-		setStage((stage + 1) % stages.length)
-	}
-
 	return (
 		<div>
 			<Head>
@@ -253,20 +208,33 @@ const Wrap: NextPage = () => {
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
 			<div className='overflow-hidden flex flex-col items-center justify-center min-h-screen h-full bg-theme-primary text-theme-secondary'>
-				{activeStage() == 'upload' && renderStep()}
+				<FadeScale showIf={canShow('upload')}>
+					<Upload
+						uploadStatus={uploadStatus}
+						openFileSelector={openFileSelector}
+						abortedUpload={abortedUpload}
+					/>
+				</FadeScale>
+
+				<Fade showIf={canShow('pick')}>
+					<div className='w-full flex flex-col items-center my-6 px-6'>
+						<Label className='mb-2'>Step 2</Label>
+						<h1 className='big-title text-center mb-6'>
+							Pick group
+						</h1>
+						<ThreadGrid data={threads} setThread={setThread} />
+					</div>
+				</Fade>
+
 				<FadeScale showIf={canShow('collect') && thread != null}>
-					<div className='w-full my-6 px-6 flex justify-center'>
+					<div className='w-full flex flex-col items-center my-6 px-6 justify-center'>
+						<Label className="mb-2">{thread?.title}</Label>
 						<Progressbar
 							max={thread ? thread.files.length + 2 : 2}
 							step={uploadStatus.step}
 							className='mt-4 w-48'
 							text={uploadStatus.message}
-						/>{' '}
-					</div>
-				</FadeScale>
-				<FadeScale showIf={canShow('pick')}>
-					<div className='w-full my-6 px-6'>
-						<ThreadGrid data={threads} setThread={setThread} />
+						/>
 					</div>
 				</FadeScale>
 
@@ -309,11 +277,11 @@ const Wrap: NextPage = () => {
 						thread={threadData}
 					/>
 				</FadeScale>
-				<div className='flex justify-center bg-black w-full text-white uppercase text-xs py-2 absolute bottom-0'>
+				<div className='flex justify-center bg-black w-full text-white uppercase text-xs py-2 fixed bottom-0'>
 					<button
 						className='w-1/2'
 						onClick={() => {
-							setStageByName('pick')
+							setStage(stage - 1)
 						}}>
 						back
 					</button>
