@@ -1,4 +1,4 @@
-import { message, thread, threadExcerpt } from '../types/fb'
+import { message, participant, thread, threadExcerpt } from '../types/fb'
 import { tryFindFile, tryFindFiles } from './files'
 
 const decodeFBString = (str: any) => {
@@ -29,8 +29,13 @@ const messageLengthReducer = (acc: Map<string, number>, m: message) => {
     return acc
 }
 
+const getNumberOfWords = (message: string) => {
+    const words = message.split(' ')
+    const numberOfWords = words.length > 0 ? words.length : 1
+    return numberOfWords
+}
+
 const getLixLevel = (message: string) => {
-    console.log("Getting lix for", message)
     const words = message.split(' ')
     const numberOfWords = words.length > 0 ? words.length : 1
     const periodMatches = message.match(/\./g)
@@ -136,7 +141,7 @@ const collectThread = async (
         files: threadExcerpt.files,
         title: threadExcerpt.title,
         messages: [],
-        participants: [],
+        participants: new Map(),
         image: threadExcerpt.image,
     }
 
@@ -166,6 +171,8 @@ const collectThread = async (
 
         let audSeconds = 0
 
+        const participants: Map<string, participant> = new Map()
+
         for await (const m of messages) {
             for await (const audio of m.audio) {
                 if(audio != undefined){
@@ -177,21 +184,64 @@ const collectThread = async (
                     audSeconds += duration
                 }
             }
+            
+            // Update participant
+            const prevValue = participants.get(m.sender_name)
+            if(prevValue){
+                participants.set(m.sender_name, {
+                    ...prevValue,
+                    messageCount: prevValue.messageCount + 1,
+                    totalLixLevel: prevValue.totalLixLevel + (m.content ? getLixLevel(m.content) : 1),
+                    totalWords: prevValue.totalWords + (m.content ? getNumberOfWords(m.content) : 1)
+                })
+            }else{
+                participants.set(m.sender_name, {
+                    name: m.sender_name,
+                    messageCount: 1,
+                    totalLixLevel: m.content ? getLixLevel(m.content) : 1,
+                    totalWords: m.content ? getNumberOfWords(m.content) : 1,
+                    averageWords: 0,
+                    averageLixLevel: 0,
+                })
+            }
         }
-
-        const participants: string[] = json.participants.reduce(
-            (acc: string[], p: string) => [...acc, p],
-            []
-        )
-
-        thread.participants = participants
         thread.audioSeconds = thread.audioSeconds + audSeconds
         thread.videoCount = thread.videoCount + videoCount
         thread.photoCount = thread.photoCount + photoCount
-        thread.messages = [...thread.messages, ...messages]
+        thread.messages = [...thread.messages, ...messages];
+        
+        // Update participants
+        [...participants.entries()].forEach(([name, data]) => {
+            const prevValue = thread.participants.get(name)
+            if(prevValue){
+                thread.participants.set(name, {
+                    name: name,
+                    messageCount: prevValue.messageCount + data.messageCount,
+                    totalLixLevel: prevValue.totalLixLevel + data.totalLixLevel,
+                    totalWords: prevValue.totalWords + data.totalWords,
+                    averageWords: 0,
+                    averageLixLevel: 0,
+                })
+            }else{
+                thread.participants.set(name, {
+                    name: name,
+                    messageCount: data.messageCount,
+                    totalLixLevel: data.totalLixLevel,
+                    totalWords: data.totalWords,
+                    averageWords: 0,
+                    averageLixLevel: 0,
+                })
+            }
+        })
     }
     setUploadStatus({step: threadExcerpt.files.length + 1, message: 'Sorting messages'})
-
+    thread.participants.forEach((value, key) => {
+        thread.participants.set(key, {
+            ...value,
+            averageLixLevel: Math.round(value.totalLixLevel / value.messageCount),
+            averageWords: Math.round(value.totalWords / value.messageCount)
+        })
+    })
     // Sort messages
     thread.messages.sort((a, b) => a.timestamp_ms - b.timestamp_ms)
     setUploadStatus({step: threadExcerpt.files.length + 2, message: 'Ready'})

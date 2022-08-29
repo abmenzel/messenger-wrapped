@@ -10,7 +10,7 @@ type thread = {
 	videoCount: number
 	audioSeconds: number
 	photoCount: number
-	participants: string[]
+	participants: Map<string, participant>
 	messages: message[]
 	files: File[]
 	image: File | undefined
@@ -24,5 +24,13 @@ type message = {
 	audio: (File | undefined)[]
 	videos: (File | undefined)[]
 }
+type participant = { 
+	name: string
+	totalLixLevel: number
+	messageCount: number
+	totalWords: number
+	averageWords: number
+	averageLixLevel: number
+}
 
-export type { message, thread, threadExcerpt }
+export type { message, thread, threadExcerpt, participant }

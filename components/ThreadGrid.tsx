@@ -3,6 +3,8 @@ import Label from './Label'
 const ThreadGrid = (props: any) => {
 	const { data, setThread } = props
 
+    // TODO: See if we can use participants photos for group photo
+
 	return (
 		<div className='w-full grid grid-cols-2 gap-4 content-center'>
 			{data?.map((thread: any, idx: number) => {

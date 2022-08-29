@@ -1,12 +1,9 @@
 import type { NextPage } from 'next'
-import Link from 'next/link'
 import Head from 'next/head'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { message, thread, threadExcerpt } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
-import { CSSTransition } from 'react-transition-group'
 import { Fade, FadeScale } from '../components/Animation'
 import { ContributorsSlide, CountSlide, IntroSlide } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
@@ -32,16 +29,20 @@ const Wrap: NextPage = () => {
 	const [stage, setStage] = useState(-1)
 	const [animateStage, setAnimateStage] = useState<number>(0)
 	const [timer, setTimer] = useState<any>(null)
-	const wrapStart = 3
+	const wrapStart = 4
 	const stages = [
 		'upload',
+		'lots-of-friends',
 		'pick',
 		'collect',
 		'intro',
 		'messageCount',
 		'topContributors',
 		'longestMessages',
+		'lixLevel',
 	]
+
+	const moveOn = ['lots-of-friends']
 
 	const activeStage = () => stages[stage]
 
@@ -64,6 +65,10 @@ const Wrap: NextPage = () => {
 	})
 
 	useEffect(() => {
+		setStage(0)
+	}, [])
+
+	useEffect(() => {
 		if (timer) clearTimeout(timer)
 		if (!wrapTime()) {
 			return
@@ -74,10 +79,6 @@ const Wrap: NextPage = () => {
 		}, 5000)
 		setTimer(t)
 	}, [stage])
-
-	useEffect(() => {
-		setStage(0)
-	}, [])
 
 	// TODO:
 	// Error handling if no jsonfiles are found
@@ -139,7 +140,7 @@ const Wrap: NextPage = () => {
 				step: 5,
 				message: 'Ready',
 			})
-			setStageByName('pick')
+			setStageByName('lots-of-friends')
 		} catch (error: any) {
 			if (error instanceof DOMException) {
 				console.log(error)
@@ -175,6 +176,7 @@ const Wrap: NextPage = () => {
 	}, [thread])
 
 	useEffect(() => {
+		console.log('thread loaded', threadData)
 		if (threads.length == 0) {
 			setStageByName('upload')
 			return
@@ -191,9 +193,18 @@ const Wrap: NextPage = () => {
 		setTimeout(() => {
 			setAnimateStage(stage)
 		}, 300)
+		if(moveOn.includes(stages[stage])){
+			setTimeout(() => {
+				setStage(stage + 1)
+			}, 2000)
+		}
 	}, [stage])
 
 	useEffect(() => {
+		setUploadStatus({
+			step: 0,
+			message: '',
+		})
 		console.log('Can now animate stage', stages[animateStage])
 		if (stages[animateStage] == 'pick') {
 			setThread(null)
@@ -216,6 +227,12 @@ const Wrap: NextPage = () => {
 					/>
 				</FadeScale>
 
+				<FadeScale showIf={canShow('lots-of-friends')}>
+					<div className='flex flex-col items-center p-4'>
+						<p className='big-title text-center'>Woah that's a lot of friends!</p>
+					</div>
+				</FadeScale>
+
 				<Fade showIf={canShow('pick')}>
 					<div className='w-full flex flex-col items-center my-6 px-6'>
 						<Label className='mb-2'>Step 2</Label>
@@ -228,7 +245,7 @@ const Wrap: NextPage = () => {
 
 				<FadeScale showIf={canShow('collect') && thread != null}>
 					<div className='w-full flex flex-col items-center my-6 px-6 justify-center'>
-						<Label className="mb-2">{thread?.title}</Label>
+						<Label className='mb-2'>{thread?.title}</Label>
 						<Progressbar
 							max={thread ? thread.files.length + 2 : 2}
 							step={uploadStatus.step}
@@ -258,23 +275,59 @@ const Wrap: NextPage = () => {
 
 				<FadeScale showIf={wrapTime() && canShow('topContributors')}>
 					<ContributorsSlide
-						total={threadData?.messageCount}
-						reducer={messageCountReducer}
 						title={'Most messages'}
 						text={'messages'}
 						thread={threadData}
+						values={
+							threadData &&
+							[...threadData.participants.entries()]
+								.map(([name, data]) => {
+									return {
+										name: name,
+										v: data.messageCount,
+									}
+								})
+								.sort((a, b) => b.v - a.v)
+						}
+						total={threadData?.messageCount}
 					/>
 				</FadeScale>
 
 				<FadeScale showIf={wrapTime() && canShow('longestMessages')}>
 					<ContributorsSlide
-						total={threadData?.messages.reduce((acc, m) => {
-							return (m.content ? m.content.length : 0) + acc
-						}, 0)}
-						reducer={messageLengthReducer}
 						title={'Longest messages'}
-						text={'characters'}
+						text={'words on average'}
 						thread={threadData}
+						values={
+							threadData &&
+							[...threadData.participants.entries()]
+								.map(([name, data]) => {
+									return {
+										name: name,
+										v: data.averageWords,
+									}
+								})
+								.sort((a, b) => b.v - a.v)
+						}
+					/>
+				</FadeScale>
+
+				<FadeScale showIf={wrapTime() && canShow('lixLevel')}>
+					<ContributorsSlide
+						title={'Lix level'}
+						text={'lix'}
+						thread={threadData}
+						values={
+							threadData &&
+							[...threadData.participants.entries()]
+								.map(([name, data]) => {
+									return {
+										name: name,
+										v: data.averageLixLevel,
+									}
+								})
+								.sort((a, b) => b.v - a.v)
+						}
 					/>
 				</FadeScale>
 				<div className='flex justify-center bg-black w-full text-white uppercase text-xs py-2 fixed bottom-0'>
