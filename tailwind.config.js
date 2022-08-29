@@ -17,6 +17,7 @@ module.exports = {
         scaleIn: 'scaleIn 0.5s ease-in-out forwards',
         scaleUp: 'scaleUp 0.5s ease-in-out forwards',
         bounceIn: 'bounceIn 0.2s ease-out forwards',
+        moveUp: 'moveUp 5s ease-in-out forwards'
       },
       keyframes: {
         width: {
@@ -25,6 +26,14 @@ module.exports = {
           },
           '100%': {
             width: '100%'
+          }
+        },
+        moveUp: {
+          '0%': {
+            transform: 'translateY(0)'
+          }, 
+          '100%': {
+            transform: 'translateY(-100vh)'
           }
         },
         scaleIn: {

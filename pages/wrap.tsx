@@ -5,7 +5,7 @@ import { message, thread, threadExcerpt } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
 import { Fade, FadeScale } from '../components/Animation'
-import { ContributorsSlide, CountSlide, IntroSlide } from '../components/Slides'
+import { ContributorsSlide, CountSlide, IntroSlide, MemorySlide } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
 import {
 	collectThread,
@@ -31,25 +31,56 @@ const Wrap: NextPage = () => {
 	const [timer, setTimer] = useState<any>(null)
 	const wrapStart = 4
 	const stages = [
-		'upload',
-		'lots-of-friends',
-		'pick',
-		'collect',
-		'intro',
-		'messageCount',
-		'topContributors',
-		'longestMessages',
-		'lixLevel',
+		{
+			name: 'upload',
+			time: 5000,
+		},
+		{
+			name: 'lots-of-friends',
+			time: 5000,
+		},
+		{
+			name: 'pick',
+			time: 5000,
+		},
+		{
+			name: 'collect',
+			time: 5000,
+		},
+		{
+			name: 'intro',
+			time: 3000,
+		},
+		{
+			name: 'messageCount',
+			time: 5000,
+		},
+		{
+			name: 'topContributors',
+			time: 5000,
+		},
+		{
+			name: 'longestMessages',
+			time: 5000,
+		},
+		{
+			name: 'lixLevel',
+			time: 5000,
+		},
+		{
+			name: 'imageMemories',
+			time: 8000,
+		},
 	]
 
 	const moveOn = ['lots-of-friends']
 
-	const activeStage = () => stages[stage]
+	const activeStage = () => stages[stage]?.name
 
-	const activeAnimatedStage = () => stages[animateStage]
+	const activeAnimatedStage = () => stages[animateStage]?.name
 
 	const setStageByName = (stageName: string) =>
-		setStage(stages.findIndex((elm) => elm == stageName))
+		setStage(stages.findIndex((elm) => elm.name == stageName))
 
 	const wrapTime = () => stage > wrapStart - 1
 
@@ -76,7 +107,7 @@ const Wrap: NextPage = () => {
 		const nextStage = (stage + 1) % stages.length
 		const t = setTimeout(() => {
 			setStage(nextStage < wrapStart ? wrapStart : nextStage)
-		}, 5000)
+		}, stages[stage].time)
 		setTimer(t)
 	}, [stage])
 
@@ -193,7 +224,7 @@ const Wrap: NextPage = () => {
 		setTimeout(() => {
 			setAnimateStage(stage)
 		}, 300)
-		if(moveOn.includes(stages[stage])){
+		if(moveOn.includes(stages[stage]?.name)){
 			setTimeout(() => {
 				setStage(stage + 1)
 			}, 2000)
@@ -206,7 +237,7 @@ const Wrap: NextPage = () => {
 			message: '',
 		})
 		console.log('Can now animate stage', stages[animateStage])
-		if (stages[animateStage] == 'pick') {
+		if (canShow('pick')) {
 			setThread(null)
 		}
 	}, [animateStage])
@@ -330,6 +361,12 @@ const Wrap: NextPage = () => {
 						}
 					/>
 				</FadeScale>
+
+				<FadeScale showIf={wrapTime() && canShow('imageMemories')}>
+					<MemorySlide thread={threadData} />
+					
+				</FadeScale>
+
 				<div className='flex justify-center bg-black w-full text-white uppercase text-xs py-2 fixed bottom-0'>
 					<button
 						className='w-1/2'

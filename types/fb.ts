@@ -15,6 +15,10 @@ type thread = {
 	files: File[]
 	image: File | undefined
 }
+type media = {
+	file: File,
+	reactions: string[]
+}
 type message = {
 	timestamp_ms: number
 	sender_name: string
@@ -31,6 +35,7 @@ type participant = {
 	totalWords: number
 	averageWords: number
 	averageLixLevel: number
+	longMessages: number
 }
 
 export type { message, thread, threadExcerpt, participant }

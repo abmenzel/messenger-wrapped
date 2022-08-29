@@ -36,6 +36,7 @@ const getNumberOfWords = (message: string) => {
 }
 
 const getLixLevel = (message: string) => {
+    if(message.length < 50) return 0
     const words = message.split(' ')
     const numberOfWords = words.length > 0 ? words.length : 1
     const periodMatches = message.match(/\./g)
@@ -191,15 +192,17 @@ const collectThread = async (
                 participants.set(m.sender_name, {
                     ...prevValue,
                     messageCount: prevValue.messageCount + 1,
-                    totalLixLevel: prevValue.totalLixLevel + (m.content ? getLixLevel(m.content) : 1),
-                    totalWords: prevValue.totalWords + (m.content ? getNumberOfWords(m.content) : 1)
+                    longMessages: prevValue.longMessages + ((m.content && m.content.length > 50) ? 1 : 0 ),
+                    totalLixLevel: prevValue.totalLixLevel + (m.content ? getLixLevel(m.content) : 0),
+                    totalWords: prevValue.totalWords + (m.content ? getNumberOfWords(m.content) : 0)
                 })
             }else{
                 participants.set(m.sender_name, {
                     name: m.sender_name,
                     messageCount: 1,
-                    totalLixLevel: m.content ? getLixLevel(m.content) : 1,
-                    totalWords: m.content ? getNumberOfWords(m.content) : 1,
+                    longMessages: (m.content && m.content.length > 50) ? 1 : 0,
+                    totalLixLevel: m.content ? getLixLevel(m.content) : 0,
+                    totalWords: m.content ? getNumberOfWords(m.content) : 0,
                     averageWords: 0,
                     averageLixLevel: 0,
                 })
@@ -217,6 +220,7 @@ const collectThread = async (
                 thread.participants.set(name, {
                     name: name,
                     messageCount: prevValue.messageCount + data.messageCount,
+                    longMessages: prevValue.longMessages + data.longMessages,
                     totalLixLevel: prevValue.totalLixLevel + data.totalLixLevel,
                     totalWords: prevValue.totalWords + data.totalWords,
                     averageWords: 0,
@@ -226,6 +230,7 @@ const collectThread = async (
                 thread.participants.set(name, {
                     name: name,
                     messageCount: data.messageCount,
+                    longMessages: data.longMessages,
                     totalLixLevel: data.totalLixLevel,
                     totalWords: data.totalWords,
                     averageWords: 0,
@@ -234,11 +239,12 @@ const collectThread = async (
             }
         })
     }
+
     setUploadStatus({step: threadExcerpt.files.length + 1, message: 'Sorting messages'})
     thread.participants.forEach((value, key) => {
         thread.participants.set(key, {
             ...value,
-            averageLixLevel: Math.round(value.totalLixLevel / value.messageCount),
+            averageLixLevel: Math.round(value.totalLixLevel / value.longMessages),
             averageWords: Math.round(value.totalWords / value.messageCount)
         })
     })
