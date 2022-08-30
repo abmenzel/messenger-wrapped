@@ -5,7 +5,7 @@ import { message, thread, threadExcerpt } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
 import { Fade, FadeScale } from '../components/Animation'
-import { ContributorsSlide, CountSlide, IntroSlide, MemorySlide } from '../components/Slides'
+import { ContributorsSlide, CountSlide, IntroSlide, MemorySlide, PhotoMemorySlide, VideoMemorySlide } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
 import {
 	collectThread,
@@ -57,18 +57,22 @@ const Wrap: NextPage = () => {
 		},
 		{
 			name: 'topContributors',
-			time: 5000,
+			time: 7000,
 		},
 		{
 			name: 'longestMessages',
-			time: 5000,
+			time: 7000,
 		},
 		{
 			name: 'lixLevel',
-			time: 5000,
+			time: 7000,
 		},
 		{
 			name: 'imageMemories',
+			time: 8000,
+		},
+		{
+			name: 'videoMemories',
 			time: 8000,
 		},
 	]
@@ -363,8 +367,11 @@ const Wrap: NextPage = () => {
 				</FadeScale>
 
 				<FadeScale showIf={wrapTime() && canShow('imageMemories')}>
-					<MemorySlide thread={threadData} />
-					
+					<PhotoMemorySlide thread={threadData} />
+				</FadeScale>
+
+				<FadeScale showIf={wrapTime() && canShow('videoMemories')}>
+					<VideoMemorySlide thread={threadData} />
 				</FadeScale>
 
 				<div className='flex justify-center bg-black w-full text-white uppercase text-xs py-2 fixed bottom-0'>
