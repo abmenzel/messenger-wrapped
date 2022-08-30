@@ -7,6 +7,11 @@ type threadExcerpt = {
 type thread = {
 	title: string
 	messageCount: number
+	messageBucket: Map<number, Map<number, number>>
+	busiestMonth: {
+		date: string
+		count: number
+	}
 	videoCount: number
 	audioSeconds: number
 	photoCount: number

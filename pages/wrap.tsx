@@ -5,7 +5,7 @@ import { message, thread, threadExcerpt } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
 import { Fade, FadeScale } from '../components/Animation'
-import { ContributorsSlide, CountSlide, IntroSlide, MemorySlide, PhotoMemorySlide, VideoMemorySlide } from '../components/Slides'
+import { ContributorsSlide, CountSlide, IntroSlide, MemorySlide, PhotoMemorySlide, TimelineSlide, VideoMemorySlide } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
 import {
 	collectThread,
@@ -49,11 +49,15 @@ const Wrap: NextPage = () => {
 		},
 		{
 			name: 'intro',
-			time: 3000,
+			time: 4000,
 		},
 		{
 			name: 'messageCount',
 			time: 5000,
+		},
+		{
+			name: 'timeline',
+			time: 7000,
 		},
 		{
 			name: 'topContributors',
@@ -73,7 +77,7 @@ const Wrap: NextPage = () => {
 		},
 		{
 			name: 'videoMemories',
-			time: 8000,
+			time: 25000,
 		},
 	]
 
@@ -306,6 +310,10 @@ const Wrap: NextPage = () => {
 
 				<FadeScale showIf={wrapTime() && canShow('messageCount')}>
 					<CountSlide type={'messages'} thread={threadData} />
+				</FadeScale>
+
+				<FadeScale showIf={wrapTime() && canShow('timeline')}>
+					<TimelineSlide thread={threadData} />
 				</FadeScale>
 
 				<FadeScale showIf={wrapTime() && canShow('topContributors')}>

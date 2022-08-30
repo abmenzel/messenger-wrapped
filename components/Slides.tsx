@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { message, thread } from '../types/fb'
-import { epochToDate } from '../utils/time'
+import { epochToDate, getWeek } from '../utils/time'
 import CountUp from 'react-countup'
 import Label from './Label'
 import { FadeScale } from './Animation'
@@ -31,7 +31,67 @@ const IntroSlide = (props: any) => {
 	return (
 		<div className='flex flex-col items-center'>
 			<Label className='mb-2'>{thread.title}</Label>
-			<p className='big-title text-center'>{`A journey that began in ${date.getFullYear()}`}</p>
+			<p className='big-title text-center mb-4'>{`A journey that began in ${date.getFullYear()}`}</p>
+			<p className='sub-title text-center'>
+				{thread.messages[0].content}
+			</p>
+			<p className='sub-title text-center'>
+				- {thread.messages[0].sender_name}
+			</p>
+		</div>
+	)
+}
+
+const TimelineSlide = (props: any) => {
+	const { thread }: { thread: thread } = props
+	return (
+		<div className='relative px-6'>
+			<div className='flex items-center justify-start flex-col'>
+				<p className='big-title mb-2 text-center'>Over the years</p>
+				<p className='sub-title text-center mb-2'>
+					What will the future look like?
+				</p>
+				<div className='w-full'>
+					{[...thread.messageBucket.entries()].map(
+						([year, months]) => {
+							return (
+								<div className=' flex flex-col mb-2'>
+									<p className='text-theme-secondary font-extrabold text-xl'>
+										{year}
+									</p>
+									{[...months.values()].map((count) => {
+										return (
+											<div className='flex w-full justify-start items-center'>
+												<div
+													className='h-0.5'
+													style={{
+														width: `${
+															(count /
+																thread
+																	.busiestMonth
+																	.count) *
+															100
+														}%`,
+													}}>
+													<div
+														style={{
+															animationDuration:
+																'2s',
+															animationFillMode:
+																'forwards',
+														}}
+														className={`h-full bg-theme-secondary animate-width w-0`}
+													/>
+												</div>
+											</div>
+										)
+									})}
+								</div>
+							)
+						}
+					)}
+				</div>
+			</div>
 		</div>
 	)
 }
@@ -122,7 +182,7 @@ const ContributorsSlide = (props: any) => {
 						return (
 							<div className='mb-4' key={value.name}>
 								<div
-									className={`${animationDelay[idx]} animation-de animate-scaleIn opacity-0 scale-110 flex items-center gap-2 text-sm mb-1 relative left-4`}>
+									className={`${animationDelay[idx]} animate-scaleIn opacity-0 scale-110 flex items-center gap-2 text-sm mb-1 relative left-4`}>
 									<Label className='aspect-square items-center justify-center flex font-bold text-base w-14'>
 										{total
 											? `${Math.round(
@@ -153,18 +213,19 @@ const PhotoMemorySlide = (props: any) => {
 
 	useEffect(() => {
 		const urls = thread.messages
-			.filter((m) => m.videos.length > 0 && m.videos[0] != undefined)
+			.filter((m) => m.photos.length > 0 && m.photos[0] != undefined)
 			.sort((a, b) => b.reactions.length - a.reactions.length)
-			.map((m) => URL.createObjectURL(m.videos[0] as File))
+			.slice(0, 10)
+			.map((m) => URL.createObjectURL(m.photos[0] as File))
 		setMediaUrls(urls)
 	}, [])
 
 	return (
-		<div className='flex h-screen flex-col items-start px-6'>
+		<div className='flex h-screen flex-col items-center px-6'>
 			<p className='sub-title text-center mt-24 mb-12'>{`You've shared so many memories together`}</p>
 			<div className='w-full h-1/2 relative'>
 				{mediaUrls.length > 0 &&
-					mediaUrls.slice(0, 10).map((url, idx) => {
+					mediaUrls.map((url, idx) => {
 						return (
 							<div
 								style={{
@@ -200,41 +261,61 @@ const PhotoMemorySlide = (props: any) => {
 
 const VideoMemorySlide = (props: any) => {
 	const { thread }: { thread: thread } = props
-	const [imageUrls, setMediaUrls] = useState<string[]>([])
-
+	const [mediaUrls, setMediaUrls] = useState<string[]>([])
+	const videoRef = useRef<(HTMLVideoElement | null)[]>([])
+	const [playingVideo, setPlayingVideo] = useState(0)
 	useEffect(() => {
 		const videoUrls = thread.messages
 			.filter((m) => m.videos.length > 0 && m.videos[0] != undefined)
 			.sort((a, b) => b.reactions.length - a.reactions.length)
+			.slice(0, 10)
 			.map((m) => URL.createObjectURL(m.videos[0] as File))
 		setMediaUrls(videoUrls)
+
 		return
 	}, [])
 
+	useEffect(() => {
+		if (mediaUrls.length == 0) return
+		const activeVideo = videoRef.current[playingVideo]
+
+		if (!activeVideo) return
+		activeVideo.play()
+		setTimeout(() => {
+			activeVideo.pause()
+			setPlayingVideo(playingVideo + 1)
+		}, 2500)
+	}, [playingVideo, mediaUrls])
+
 	return (
-		<div className='flex h-screen flex-col items-start px-6'>
+		<div className='flex h-screen flex-col items-center px-6'>
 			<p className='sub-title text-center mt-24 mb-12'>{`You've shared so many memories together`}</p>
 			<div className='w-full h-1/2 relative'>
-				{imageUrls.length > 0 &&
-					imageUrls.slice(0, 10).map((url, idx) => {
+				{mediaUrls.length > 0 &&
+					mediaUrls.map((url, idx) => {
 						return (
 							<div
 								style={{
-									animationDelay: `${1000 * idx}ms`,
+									animationDelay: `${2500 * idx}ms`,
 									zIndex: `${1 * idx}`,
 								}}
 								className='overflow-visible absolute inset-0 w-full animate-scaleIn opacity-0 scale-110'
 								key={idx}>
 								{url && (
 									<div
-										className='absolute inset-0 px-6 w-4/5 mx-auto'
+										className='absolute flex items-center inset-0 px-6 w-4/5 mx-auto'
 										style={{
 											overflow: 'visible',
 											transform: `rotate(${
 												idx % 2 == 0 ? idx : -idx
 											}deg)`,
 										}}>
-										<video src={url} autoPlay muted />
+										<video
+											ref={(el) =>
+												(videoRef.current[idx] = el)
+											}
+											src={url}
+										/>
 									</div>
 								)}
 							</div>
@@ -251,4 +332,5 @@ export {
 	ContributorsSlide,
 	PhotoMemorySlide,
 	VideoMemorySlide,
+	TimelineSlide,
 }
