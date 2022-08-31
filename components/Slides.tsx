@@ -11,20 +11,6 @@ import {
 } from '../utils/messages'
 import Image from 'next/image'
 
-// INTRO -> The journey began in xxx ... In xxx you're still going strong
-// MESSAGECOUNT -> xxxxx messages sent, how many more will come?
-// MOST LIKED MESSAGES
-// PHOTO COUNT
-// MOST LIKED PHOTOS
-// LYDTIMER
-// MOST LIKED SOUNDS
-// TOP CONTRIBUTORS
-// LEAST CONTRIBUTORS
-// LÆNGST BESKEDER
-// LIX-TAL
-// TIMELINE
-//
-
 const IntroSlide = (props: any) => {
 	const { thread }: { thread: thread } = props
 	const date = epochToDate(thread.messages[0].timestamp_ms)
@@ -33,10 +19,10 @@ const IntroSlide = (props: any) => {
 			<Label className='mb-2'>{thread.title}</Label>
 			<p className='big-title text-center mb-4'>{`A journey that began in ${date.getFullYear()}`}</p>
 			<p className='sub-title text-center'>
-				{thread.messages[0].content}
+				{decodeFBString(thread.messages[0].content)}
 			</p>
 			<p className='sub-title text-center'>
-				- {thread.messages[0].sender_name}
+				- {decodeFBString(thread.messages[0].sender_name)}
 			</p>
 		</div>
 	)
