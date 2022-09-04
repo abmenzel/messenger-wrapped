@@ -16,6 +16,7 @@ import {
 import { getAllFiles, nameToFile } from '../utils/files'
 import ThreadGrid from '../components/ThreadGrid'
 import Upload from '../components/Upload'
+import Menu from '../components/Menu'
 
 const Wrap: NextPage = () => {
 	const [abortedUpload, setAbortedUpload] = useState(false)
@@ -381,6 +382,8 @@ const Wrap: NextPage = () => {
 				<FadeScale showIf={wrapTime() && canShow('videoMemories')}>
 					<VideoMemorySlide thread={threadData} />
 				</FadeScale>
+
+				<Menu />
 
 				<div className='flex justify-center bg-black w-full text-white uppercase text-xs py-2 fixed bottom-0'>
 					<button
