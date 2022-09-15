@@ -39,15 +39,15 @@ const TimelineSlide = (props: any) => {
 				</p>
 				<div className='w-full'>
 					{[...thread.messageBucket.entries()].map(
-						([year, months]) => {
+						([year, months],idx) => {
 							return (
-								<div className=' flex flex-col mb-2'>
+								<div key={`year-${idx}`} className=' flex flex-col mb-2'>
 									<p className='text-theme-secondary font-extrabold text-xl'>
 										{year}
 									</p>
-									{[...months.values()].map((count) => {
+									{[...months.values()].map((count, idx) => {
 										return (
-											<div className='flex w-full justify-start items-center'>
+											<div key={`months-${idx}`} className='flex w-full justify-start items-center'>
 												<div
 													className='h-0.5'
 													style={{

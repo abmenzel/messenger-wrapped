@@ -269,7 +269,7 @@ const Wrap: NextPage = () => {
 
 				<FadeScale showIf={canShow('lots-of-friends')}>
 					<div className='flex flex-col items-center p-4'>
-						<p className='big-title text-center'>Woah that's a lot of friends!</p>
+						<p className='big-title text-center'>Woah that&apos;s a lot of friends!</p>
 					</div>
 				</FadeScale>
 
