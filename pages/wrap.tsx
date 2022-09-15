@@ -5,7 +5,7 @@ import { message, thread, threadExcerpt } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
 import { Fade, FadeScale } from '../components/Animation'
-import { ContributorsSlide, CountSlide, IntroSlide, MemorySlide, PhotoMemorySlide, TimelineSlide, VideoMemorySlide } from '../components/Slides'
+import { ContributorsSlide, CountSlide, IntroSlide, PhotoMemorySlide, TimelineSlide, VideoMemorySlide } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
 import {
 	collectThread,
