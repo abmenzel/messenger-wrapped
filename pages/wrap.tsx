@@ -5,7 +5,14 @@ import { message, thread, threadExcerpt } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
 import { Fade, FadeScale } from '../components/Animation'
-import { ContributorsSlide, CountSlide, IntroSlide, PhotoMemorySlide, TimelineSlide, VideoMemorySlide } from '../components/Slides'
+import {
+	ContributorsSlide,
+	CountSlide,
+	IntroSlide,
+	PhotoMemorySlide,
+	TimelineSlide,
+	VideoMemorySlide,
+} from '../components/Slides'
 import StageProgress from '../components/StageProgress'
 import {
 	collectThread,
@@ -16,7 +23,8 @@ import {
 import { getAllFiles, nameToFile } from '../utils/files'
 import ThreadGrid from '../components/ThreadGrid'
 import Upload from '../components/Upload'
-import Menu from '../components/Menu'
+import Menu from '../components/Menu/Menu'
+import Layout from '../components/Layout/Layout'
 
 const Wrap: NextPage = () => {
 	const [abortedUpload, setAbortedUpload] = useState(false)
@@ -233,7 +241,7 @@ const Wrap: NextPage = () => {
 		setTimeout(() => {
 			setAnimateStage(stage)
 		}, 300)
-		if(moveOn.includes(stages[stage]?.name)){
+		if (moveOn.includes(stages[stage]?.name)) {
 			setTimeout(() => {
 				setStage(stage + 1)
 			}, 2000)
@@ -258,7 +266,7 @@ const Wrap: NextPage = () => {
 				<meta name='description' content='Messenger Wrapped' />
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
-			<div className='overflow-hidden flex flex-col items-center justify-center min-h-screen h-full bg-theme-primary text-theme-secondary'>
+			<Layout>
 				<FadeScale showIf={canShow('upload')}>
 					<Upload
 						uploadStatus={uploadStatus}
@@ -269,7 +277,9 @@ const Wrap: NextPage = () => {
 
 				<FadeScale showIf={canShow('lots-of-friends')}>
 					<div className='flex flex-col items-center p-4'>
-						<p className='big-title text-center'>Woah that&apos;s a lot of friends!</p>
+						<p className='big-title text-center'>
+							Woah that&apos;s a lot of friends!
+						</p>
 					</div>
 				</FadeScale>
 
@@ -383,9 +393,7 @@ const Wrap: NextPage = () => {
 					<VideoMemorySlide thread={threadData} />
 				</FadeScale>
 
-				<Menu />
-
-				<div className='flex justify-center bg-black w-full text-white uppercase text-xs py-2 fixed bottom-0'>
+				{/*<div className='flex justify-center bg-black w-full text-white uppercase text-xs py-2 fixed bottom-0'>
 					<button
 						className='w-1/2'
 						onClick={() => {
@@ -400,8 +408,8 @@ const Wrap: NextPage = () => {
 						}}>
 						pause
 					</button>
-				</div>
-			</div>
+					</div>*/}
+			</Layout>
 		</div>
 	)
 }
