@@ -155,6 +155,7 @@ const Wrap: NextPage = () => {
 			videoMap,
 			setUploadStatus
 		)
+		console.log(threadData)
 		setThreadData(threadData)
 	}
 

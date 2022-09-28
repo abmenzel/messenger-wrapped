@@ -6,8 +6,6 @@ import Label from './Label'
 import { FadeScale } from './Animation'
 import {
 	decodeFBString,
-	getLixLevel,
-	messageCountReducer,
 } from '../utils/messages'
 import Image from 'next/image'
 
@@ -19,7 +17,7 @@ const IntroSlide = (props: any) => {
 			<Label className='mb-2'>{thread.title}</Label>
 			<p className='big-title text-center mb-4'>{`A journey that began in ${date.getFullYear()}`}</p>
 			<p className='sub-title text-center'>
-				{decodeFBString(thread.messages[0].content)}
+				{thread.messages[0].content}
 			</p>
 			<p className='sub-title text-center'>
 				- {decodeFBString(thread.messages[0].sender_name)}

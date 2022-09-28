@@ -114,7 +114,7 @@ const collectThreadExcerpts = async (
 		const content = await file.text()
 		const json = await JSON.parse(content)
 		const path = json.thread_path
-		if (!(json.participants?.length > 2) || !json.messages || !json.title)
+		if (!(json.participants?.length > 1) || !json.messages || !json.title)
 			continue
 
 		const messageCount: number = parseInt(json.messages.length)
@@ -181,7 +181,7 @@ const collectThread = async (
 		})
 		const content = await file.text()
 		const json = await JSON.parse(content)
-		if (!(json.participants?.length > 2) || !json.messages || !json.title)
+		if (!(json.participants?.length > 1) || !json.messages || !json.title)
 			continue
 
 		const messages: message[] = json.messages.reduce(

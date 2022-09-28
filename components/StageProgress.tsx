@@ -5,7 +5,7 @@ const StageProgress = (props: any) => {
 
 	const renderStages = offset ? stages.slice(offset, stages.length) : stages
 	return (
-		<div className={`flex w-full z-50 ${className}`}>
+		<div className={`flex max-w-sm w-full z-50 ${className}`}>
 			{renderStages.map((s: any, idx: number) => {
 				return (
 					<div

@@ -9,7 +9,7 @@ const ThreadGrid = (props: any) => {
 		<div className='w-full grid grid-cols-2 gap-4 content-center'>
 			{data?.map((thread: any, idx: number) => {
 				return (
-					<div key={thread.title + idx} tabIndex={idx} className="focus:animate-bounceIn">
+					<div key={thread.title + idx} tabIndex={0} className="cursor-pointer focus:animate-bounceIn">
 						<div
 							onClick={() => {
 								setThread(thread)
@@ -25,7 +25,7 @@ const ThreadGrid = (props: any) => {
 										alt={thread.title}
 									/>
 								) : (
-									<p className='text-theme-secondary'>?</p>
+									<p className='text-theme-secondary pointer-events-none'>?</p>
 								)}
 							</div>
 							<Label className='absolute bottom-0 mb-4 min-w-[7rem] max-w-[9rem] text-ellipsis'>

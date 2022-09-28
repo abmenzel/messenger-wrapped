@@ -1,26 +1,55 @@
 import Link from 'next/link'
 import React, { useState } from 'react'
 import MenuIcon from '../../assets/icons/menu-icon.svg'
+import { menuItem } from '../../types/menu'
+import { Stage } from '../../types/stages'
 
-const menuData = [
+const menuData: menuItem[] = [
 	{
+		type: 'link',
 		label: 'Get started',
-		link: '/wrap',
+		link: '/',
+		visible: () => true,
 	},
 	{
+		type: 'function',
+		label: 'Pick group',
+		visible: () => true,
+		stage: Stage.Pick
+	},
+	{
+		type: 'link',
 		label: 'Playground',
 		link: '/playground',
-	}
+		visible: () => true,
+	},
 ]
 
-const MenuItem = ({item}: any) => {
-	return (
-		<Link href={item.link}>
-			<a className='font-bold text-xl whitespace-nowrap uppercase'>
-				{item.label}
-			</a>
-		</Link>
-	)
+const MenuItem = ({ item }: { item: menuItem }) => {
+	const className =
+		'cursor-pointer block w-full text-center font-bold text-xl whitespace-nowrap uppercase'
+
+	if (item.type === 'link') {
+		return (
+			<>
+				{item.visible() && (
+					<Link href={item.link}>
+						<a className={className}>{item.label}</a>
+					</Link>
+				)}
+			</>
+		)
+	} else {
+		return (
+			<>
+				{item.visible() && (
+					<div className={className}>
+						{item.label}
+					</div>
+				)}
+			</>
+		)
+	}
 }
 
 const MenuContent = ({ open }: { open: boolean }) => {
@@ -45,7 +74,6 @@ const MenuContent = ({ open }: { open: boolean }) => {
 const Menu = () => {
 	const [open, setOpen] = useState(false)
 	// TODO
-	// Add open/close functionality
 	// Add link to pick group
 	// Add link to upload data
 	// Add link to share
