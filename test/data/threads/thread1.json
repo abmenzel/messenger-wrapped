@@ -1,0 +1,71 @@
+{
+	"participants": [
+		{
+			"name": "Bob"
+		},
+		{
+			"name": "Alice"
+		},
+		{
+			"name": "Mallory"
+		}
+	],
+	"messages": [
+		{
+			"sender_id_INTERNAL": 0,
+			"sender_name": "Bob",
+			"timestamp_ms": 1539948492667,
+			"content": "Lorem ipsum dolor sit amet",
+			"type": "Generic",
+			"is_unsent": false,
+			"is_taken_down": false,
+			"bumped_message_metadata": {
+				"bumped_message": "Lorem ipsum dolor sit amet",
+				"is_bumped": false
+			}
+		},
+		{
+			"sender_id_INTERNAL": 0,
+			"sender_name": "Alice",
+			"timestamp_ms": 1539945494667,
+			"content": "Lorem ipsum dolor sit amet",
+			"type": "Generic",
+			"is_unsent": false,
+			"is_taken_down": false,
+			"bumped_message_metadata": {
+				"bumped_message": "Lorem ipsum dolor sit amet",
+				"is_bumped": false
+			}
+		},
+		{
+			"sender_id_INTERNAL": 0,
+			"sender_name": "Mallory",
+			"timestamp_ms": 1539945694667,
+			"content": "Lorem ipsum dolor sit amet",
+			"type": "Generic",
+			"is_unsent": false,
+			"is_taken_down": false,
+			"bumped_message_metadata": {
+				"bumped_message": "Lorem ipsum dolor sit amet",
+				"is_bumped": false
+			},
+			"photos": [
+				{
+					"uri": "messages/inbox/thread1/photos/alien_image.gif",
+					"media_path_INTERNAL": "",
+					"type_INTERNAL": "",
+					"creation_timestamp": 1539945694667
+				}
+			]
+		}
+	],
+	"title": "Bob, Alice and Mallory",
+	"is_still_participant": true,
+	"thread_type": "RegularGroup",
+	"thread_path": "inbox/thread1",
+	"magic_words": [],
+	"joinable_mode": {
+		"mode": 1,
+		"link": ""
+	}
+}

@@ -155,6 +155,7 @@ const Wrap: NextPage = () => {
 			videoMap,
 			setUploadStatus
 		)
+		console.log(threadData)
 		setThreadData(threadData)
 	}
 
@@ -205,7 +206,7 @@ const Wrap: NextPage = () => {
 				<meta name='description' content='Messenger Wrapped' />
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
-			<Layout>
+			<Layout setActiveStage={setActiveStage}>
 				<FadeScale showIf={isActive(Stage.Upload)}>
 					<Upload
 						uploadStatus={uploadStatus}
