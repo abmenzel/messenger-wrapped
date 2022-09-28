@@ -206,7 +206,7 @@ const Wrap: NextPage = () => {
 				<meta name='description' content='Messenger Wrapped' />
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
-			<Layout setActiveStage={setActiveStage}>
+			<Layout>
 				<FadeScale showIf={isActive(Stage.Upload)}>
 					<Upload
 						uploadStatus={uploadStatus}

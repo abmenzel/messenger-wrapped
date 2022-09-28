@@ -25,7 +25,7 @@ const menuData: menuItem[] = [
 	},
 ]
 
-const MenuItem = ({ item, setActiveStage }: { item: menuItem, setActiveStage: (stage: Stage) => void }) => {
+const MenuItem = ({ item }: { item: menuItem }) => {
 	const className =
 		'cursor-pointer block w-full text-center font-bold text-xl whitespace-nowrap uppercase'
 
@@ -43,7 +43,7 @@ const MenuItem = ({ item, setActiveStage }: { item: menuItem, setActiveStage: (s
 		return (
 			<>
 				{item.visible() && (
-					<div onClick={() => setActiveStage(item.stage)} className={className}>
+					<div className={className}>
 						{item.label}
 					</div>
 				)}
@@ -52,7 +52,7 @@ const MenuItem = ({ item, setActiveStage }: { item: menuItem, setActiveStage: (s
 	}
 }
 
-const MenuContent = ({ open, setActiveStage }: { open: boolean, setActiveStage: (stage: Stage) => void }) => {
+const MenuContent = ({ open }: { open: boolean }) => {
 	return (
 		<div
 			className={`${
@@ -62,7 +62,7 @@ const MenuContent = ({ open, setActiveStage }: { open: boolean, setActiveStage: 
 				{menuData.map((item, idx) => {
 					return (
 						<li key={idx}>
-							<MenuItem setActiveStage={setActiveStage} item={item} />
+							<MenuItem item={item} />
 						</li>
 					)
 				})}
@@ -71,7 +71,7 @@ const MenuContent = ({ open, setActiveStage }: { open: boolean, setActiveStage: 
 	)
 }
 
-const Menu = ({setActiveStage} : {setActiveStage: (stage: Stage) => void}) => {
+const Menu = () => {
 	const [open, setOpen] = useState(false)
 	// TODO
 	// Add link to pick group
@@ -82,7 +82,7 @@ const Menu = ({setActiveStage} : {setActiveStage: (stage: Stage) => void}) => {
 
 	return (
 		<div className='relative flex flex-col items-center'>
-			<MenuContent setActiveStage={setActiveStage} open={open} />
+			<MenuContent open={open} />
 			<button
 				onClick={() => setOpen(!open)}
 				className='aspect-square rounded-md bg-theme-secondary w-10 fill-theme-primary flex items-center p-1'>
