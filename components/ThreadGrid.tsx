@@ -1,7 +1,8 @@
+import { Action } from '../context/interface.types'
 import Label from './Label'
 
 const ThreadGrid = (props: any) => {
-	const { data, setThread } = props
+	const { data, dispatch } = props
 
     // TODO: See if we can use participants photos for group photo
 
@@ -12,11 +13,11 @@ const ThreadGrid = (props: any) => {
 					<div key={thread.title + idx} tabIndex={0} className="cursor-pointer focus:animate-bounceIn">
 						<div
 							onClick={() => {
-								setThread(thread)
+								dispatch({type: Action.setThreadExcerpt, payload: thread})
 							}}
 							style={{ animationDelay: `${100 * idx}ms` }}
 							className='animate-scaleUp opacity-0 scale-50 w-full flex flex-col justify-center items-center relative'>
-							<div className='w-28 mb-2 border border-theme-secondary aspect-square rounded-full flex flex-col text-center justify-center items-center'>
+							<div className='w-28 mb-2 border border-theme-1-secondary aspect-square rounded-full flex flex-col text-center justify-center items-center'>
 								{thread.image ? (
 									<img
 										loading='lazy'
@@ -25,7 +26,7 @@ const ThreadGrid = (props: any) => {
 										alt={thread.title}
 									/>
 								) : (
-									<p className='text-theme-secondary pointer-events-none'>?</p>
+									<p className='text-theme-1-secondary pointer-events-none'>?</p>
 								)}
 							</div>
 							<Label className='absolute bottom-0 mb-4 min-w-[7rem] max-w-[9rem] text-ellipsis'>

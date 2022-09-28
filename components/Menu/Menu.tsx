@@ -57,7 +57,7 @@ const MenuContent = ({ open }: { open: boolean }) => {
 		<div
 			className={`${
 				open ? '' : 'opacity-0 pointer-events-none translate-y-2'
-			} transition-all absolute bottom-12 rounded-md bg-theme-secondary text-theme-primary p-4 px-8`}>
+			} transition-all absolute bottom-12 rounded-md bg-theme-1-secondary text-theme-1-primary p-4 px-8`}>
 			<ul>
 				{menuData.map((item, idx) => {
 					return (
@@ -85,7 +85,7 @@ const Menu = () => {
 			<MenuContent open={open} />
 			<button
 				onClick={() => setOpen(!open)}
-				className='aspect-square rounded-md bg-theme-secondary w-10 fill-theme-primary flex items-center p-1'>
+				className='aspect-square rounded-md bg-theme-1-secondary w-10 fill-theme-1-primary flex items-center p-1'>
 				<MenuIcon height='100%' width='100%' viewBox='0 0 48 48' />
 			</button>
 		</div>

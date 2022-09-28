@@ -4,13 +4,13 @@
 
 @layer base {
   .big-title {
-    @apply text-5xl text-theme-secondary font-bold
+    @apply text-5xl text-theme-1-secondary font-bold
   }
   .sub-title {
-    @apply text-base text-theme-secondary
+    @apply text-base text-theme-1-secondary
   }
   .btn-primary{
-    @apply bg-theme-secondary text-theme-primary font-bold uppercase py-2 px-4 rounded-md
+    @apply bg-theme-1-secondary text-theme-1-primary font-bold uppercase py-2 px-4 rounded-md
   }
 }
 

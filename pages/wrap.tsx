@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { thread, threadExcerpt } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
@@ -15,21 +15,22 @@ import {
 	VideoMemorySlide,
 } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
-import {
-	collectThread,
-	collectThreadExcerpts,
-} from '../utils/messages'
+import { collectThread, collectThreadExcerpts } from '../utils/messages'
 import { getAllFiles, nameToFile } from '../utils/files'
 import ThreadGrid from '../components/ThreadGrid'
 import Upload from '../components/Upload'
 import Layout from '../components/Layout/Layout'
 import { Stage } from '../types/stages'
+import InterfaceContext, { InterfaceProvider } from '../context/interface'
+import { Action } from '../context/interface.types'
+import { createAction } from '../context/interface.reducer'
 
 const Wrap: NextPage = () => {
+
+	const {state, dispatch} = useContext(InterfaceContext)
+	const {threadExcerpt, threads, threadData} = state
+
 	const [abortedUpload, setAbortedUpload] = useState(false)
-	const [thread, setThread] = useState<threadExcerpt | null>(null)
-	const [threadData, setThreadData] = useState<thread | null>(null)
-	const [threads, setThreads] = useState<any[]>([])
 	const [audioMap, setAudioMap] = useState<any>(null)
 	const [imageMap, setImageMap] = useState<any>(null)
 	const [videoMap, setVideoMap] = useState<any>(null)
@@ -68,7 +69,7 @@ const Wrap: NextPage = () => {
 	useEffect(() => {
 		if (timer) clearTimeout(timer)
 		if (!wrapTime()) return
-		
+
 		const nextStage = (stageIndex + 1) % stages.length
 		const t = setTimeout(() => {
 			setStageIndex(nextStage < wrapStart ? wrapStart : nextStage)
@@ -126,12 +127,14 @@ const Wrap: NextPage = () => {
 				step: 4,
 				message: 'Sorting chats',
 			})
-			const sorted = [...threads.values()].sort((a: threadExcerpt, b: threadExcerpt) => {
-				return b.messageCount - a.messageCount
-			})
+			const sorted = [...threads.values()].sort(
+				(a: threadExcerpt, b: threadExcerpt) => {
+					return b.messageCount - a.messageCount
+				}
+			)
 			console.log(sorted)
 
-			setThreads(sorted)
+			dispatch(createAction(Action.setThreads, sorted))
 			setUploadStatus({
 				step: 5,
 				message: 'Ready',
@@ -156,25 +159,25 @@ const Wrap: NextPage = () => {
 			setUploadStatus
 		)
 		console.log(threadData)
-		setThreadData(threadData)
+		dispatch(createAction(Action.setThreadData, threadData))
 	}
 
 	useEffect(() => {
 		if (threads.length == 0) return setActiveStage(Stage.Upload)
-			
-		if (thread != null) {
-			handleThreadChange(thread)
+
+		if (threadExcerpt != null) {
+			handleThreadChange(threadExcerpt)
 			setActiveStage(Stage.Collect)
 		} else {
 			setActiveStage(Stage.Pick)
 		}
-	}, [thread])
+	}, [threadExcerpt])
 
 	useEffect(() => {
 		if (threads.length == 0) return setActiveStage(Stage.Upload)
 
 		if (!threadData) return setActiveStage(Stage.Pick)
-			
+
 		setActiveStage(Stage.Intro)
 	}, [threadData])
 
@@ -195,12 +198,12 @@ const Wrap: NextPage = () => {
 			message: '',
 		})
 		if (isActive(Stage.Pick)) {
-			setThread(null)
+			dispatch(createAction(Action.setThreadExcerpt, null))
 		}
 	}, [animateStage])
 
 	return (
-		<div>
+		<>
 			<Head>
 				<title>Messenger Wrapped | Pick messages</title>
 				<meta name='description' content='Messenger Wrapped' />
@@ -229,15 +232,15 @@ const Wrap: NextPage = () => {
 						<h1 className='big-title text-center mb-6'>
 							Pick group
 						</h1>
-						<ThreadGrid data={threads} setThread={setThread} />
+						<ThreadGrid data={threads} dispatch={dispatch} />
 					</div>
 				</Fade>
 
-				<FadeScale showIf={isActive(Stage.Collect) && thread != null}>
+				<FadeScale showIf={isActive(Stage.Collect) && threadExcerpt != null}>
 					<div className='w-full flex flex-col items-center my-6 px-6 justify-center'>
-						<Label className='mb-2'>{thread?.title}</Label>
+						<Label className='mb-2'>{threadExcerpt?.title}</Label>
 						<Progressbar
-							max={thread ? thread.files.length + 2 : 2}
+							max={threadExcerpt ? threadExcerpt.files.length + 2 : 2}
 							step={uploadStatus.step}
 							className='mt-4 w-48'
 							text={uploadStatus.message}
@@ -267,7 +270,8 @@ const Wrap: NextPage = () => {
 					<TimelineSlide thread={threadData} />
 				</FadeScale>
 
-				<FadeScale showIf={wrapTime() && isActive(Stage.TopContributors)}>
+				<FadeScale
+					showIf={wrapTime() && isActive(Stage.TopContributors)}>
 					<ContributorsSlide
 						title={'Most messages'}
 						text={'messages'}
@@ -287,7 +291,8 @@ const Wrap: NextPage = () => {
 					/>
 				</FadeScale>
 
-				<FadeScale showIf={wrapTime() && isActive(Stage.LongestMessages)}>
+				<FadeScale
+					showIf={wrapTime() && isActive(Stage.LongestMessages)}>
 					<ContributorsSlide
 						title={'Longest messages'}
 						text={'words on average'}
@@ -332,10 +337,8 @@ const Wrap: NextPage = () => {
 				<FadeScale showIf={wrapTime() && isActive(Stage.Videos)}>
 					<VideoMemorySlide thread={threadData} />
 				</FadeScale>
-
-
 			</Layout>
-		</div>
+		</>
 	)
 }
 

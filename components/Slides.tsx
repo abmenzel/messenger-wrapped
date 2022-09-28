@@ -40,7 +40,7 @@ const TimelineSlide = (props: any) => {
 						([year, months],idx) => {
 							return (
 								<div key={`year-${idx}`} className=' flex flex-col mb-2'>
-									<p className='text-theme-secondary font-extrabold text-xl'>
+									<p className='text-theme-1-secondary font-extrabold text-xl'>
 										{year}
 									</p>
 									{[...months.values()].map((count, idx) => {
@@ -64,7 +64,7 @@ const TimelineSlide = (props: any) => {
 															animationFillMode:
 																'forwards',
 														}}
-														className={`h-full bg-theme-secondary animate-width w-0`}
+														className={`h-full bg-theme-1-secondary animate-width w-0`}
 													/>
 												</div>
 											</div>
