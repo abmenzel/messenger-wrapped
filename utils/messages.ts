@@ -1,3 +1,5 @@
+import { createAction } from '../context/interface.reducer'
+import { Action, Dispatch, Status } from '../context/interface.types'
 import { message, participant, thread, threadExcerpt } from '../types/fb'
 import { tryFindFile, tryFindFiles } from './files'
 import { epochToDate } from './time'
@@ -154,15 +156,15 @@ const collectThread = async (
 	imageMap: Map<string, File>,
 	audioMap: Map<string, File>,
 	videoMap: Map<string, File>,
-	setUploadStatus: any
+	dispatch: Dispatch
 ): Promise<thread> => {
 	const thread: thread = {
 		messageCount: threadExcerpt.messageCount,
 		messageBucket: new Map(),
-        busiestMonth: {
-            date: '',
-            count: 0
-        },
+		busiestMonth: {
+			date: '',
+			count: 0,
+		},
 		audioSeconds: 0,
 		photoCount: 0,
 		videoCount: 0,
@@ -175,10 +177,12 @@ const collectThread = async (
 
 	// Create thread map
 	for await (const [idx, file] of threadExcerpt.files.entries()) {
-		setUploadStatus({
+		dispatch(createAction(Action.setUploadStatus, {
 			step: idx,
-			message: `Getting all messages in file ${idx + 1}`,
-		})
+			message: Status.GettingAllMessagesInFile,
+			suffix: idx.toString()
+		}))
+
 		const content = await file.text()
 		const json = await JSON.parse(content)
 		if (!(json.participants?.length > 1) || !json.messages || !json.title)
@@ -278,10 +282,11 @@ const collectThread = async (
 		})
 	}
 
-	setUploadStatus({
+	dispatch(createAction(Action.setUploadStatus, {
 		step: threadExcerpt.files.length + 1,
-		message: 'Sorting messages',
-	})
+		message: Status.SortingMessages
+	}))
+
 	thread.participants.forEach((value, key) => {
 		thread.participants.set(key, {
 			...value,
@@ -327,25 +332,28 @@ const collectThread = async (
 			})
 	)
 
-    let busiestMonth = {
-        date: '',
-        count: 0
-    }
-    const entries = [...messageBucket.entries()]
+	let busiestMonth = {
+		date: '',
+		count: 0,
+	}
+	const entries = [...messageBucket.entries()]
 	entries.forEach(([year, yearCounts]) => {
-        const yearEntries = [...yearCounts.entries()]
+		const yearEntries = [...yearCounts.entries()]
 		yearEntries.forEach(([month, count]) => {
-			if (count > busiestMonth.count){
-                busiestMonth.count = count
-                busiestMonth.date = `${year}.${month}`
-            }
+			if (count > busiestMonth.count) {
+				busiestMonth.count = count
+				busiestMonth.date = `${year}.${month}`
+			}
 		})
 	})
 
-    thread.messageBucket = messageBucketSorted
-    thread.busiestMonth = busiestMonth
+	thread.messageBucket = messageBucketSorted
+	thread.busiestMonth = busiestMonth
 
-	setUploadStatus({ step: threadExcerpt.files.length + 2, message: 'Ready' })
+	dispatch(createAction(Action.setUploadStatus, {
+		step: threadExcerpt.files.length + 2,
+		message: Status.Ready
+	}))
 
 	return thread
 }

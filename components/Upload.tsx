@@ -1,8 +1,17 @@
-import Label from "./Label"
-import Progressbar from "./Progressbar"
+import { useContext } from 'react'
+import InterfaceContext from '../context/interface'
+import Label from './Label'
+import Progressbar from './Progressbar'
 
 const Upload = (props: any) => {
-    const {uploadStatus, openFileSelector, abortedUpload} = props
+	const { state } = useContext(InterfaceContext)
+	const { theme } = state
+	const { uploadStatus, openFileSelector, abortedUpload } = props
+
+	const text = uploadStatus.suffix
+		? `${uploadStatus.message} ${uploadStatus.suffix}`
+		: uploadStatus.message
+
 	return (
 		<div className='flex flex-col items-center'>
 			<Label className='mb-2'>Step 1</Label>
@@ -14,7 +23,7 @@ const Upload = (props: any) => {
 				</p>
 				{uploadStatus.step == 0 ? (
 					<button
-						className='btn-primary my-6'
+						className={`${theme.bgSecondary} ${theme.textPrimary} btn-primary my-6`}
 						onClick={openFileSelector}>
 						{abortedUpload ? 'Please add data' : 'Add data'}
 					</button>
@@ -24,7 +33,7 @@ const Upload = (props: any) => {
 							max={4}
 							step={uploadStatus.step}
 							className='mt-4 w-48'
-							text={uploadStatus.message}
+							text={text}
 						/>
 					</div>
 				)}
