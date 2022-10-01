@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 
 const StageProgress = (props: any) => {
-	const { className, stages, stage, setStage, offset } = props
+	const { className, stages, stage, offset, callback } = props
 
 	const renderStages = offset ? stages.slice(offset, stages.length) : stages
 	return (
@@ -10,7 +10,7 @@ const StageProgress = (props: any) => {
 				return (
 					<div
 						onClick={() => {
-							setStage(idx + offset)
+							callback(idx + offset)
 						}}
 						key={idx + offset}
 						className='p-1 grow'>

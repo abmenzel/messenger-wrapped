@@ -3,6 +3,9 @@ import Progressbar from "./Progressbar"
 
 const Upload = (props: any) => {
     const {uploadStatus, openFileSelector, abortedUpload} = props
+
+	const text = uploadStatus.suffix ? `${uploadStatus.message} ${uploadStatus.suffix}` : uploadStatus.message
+
 	return (
 		<div className='flex flex-col items-center'>
 			<Label className='mb-2'>Step 1</Label>
@@ -24,7 +27,7 @@ const Upload = (props: any) => {
 							max={4}
 							step={uploadStatus.step}
 							className='mt-4 w-48'
-							text={uploadStatus.message}
+							text={text}
 						/>
 					</div>
 				)}

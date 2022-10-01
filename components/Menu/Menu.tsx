@@ -2,7 +2,7 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 import MenuIcon from '../../assets/icons/menu-icon.svg'
 import { menuItem } from '../../types/menu'
-import { Stage } from '../../types/stages'
+import { StageName } from '../../types/stages'
 
 const menuData: menuItem[] = [
 	{
@@ -15,7 +15,7 @@ const menuData: menuItem[] = [
 		type: 'function',
 		label: 'Pick group',
 		visible: () => true,
-		stage: Stage.Pick
+		stage: StageName.Pick,
 	},
 	{
 		type: 'link',
@@ -43,9 +43,7 @@ const MenuItem = ({ item }: { item: menuItem }) => {
 		return (
 			<>
 				{item.visible() && (
-					<div className={className}>
-						{item.label}
-					</div>
+					<div className={className}>{item.label}</div>
 				)}
 			</>
 		)

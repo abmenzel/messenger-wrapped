@@ -20,184 +20,80 @@ import { getAllFiles, nameToFile } from '../utils/files'
 import ThreadGrid from '../components/ThreadGrid'
 import Upload from '../components/Upload'
 import Layout from '../components/Layout/Layout'
-import { Stage } from '../types/stages'
-import InterfaceContext, { InterfaceProvider } from '../context/interface'
-import { Action } from '../context/interface.types'
+import { Stage, StageName } from '../types/stages'
+import InterfaceContext from '../context/interface'
+import { Action, Status } from '../context/interface.types'
 import { createAction } from '../context/interface.reducer'
 
 const Wrap: NextPage = () => {
+	const { state, dispatch, handleFileSelector } = useContext(InterfaceContext)
+	const {
+		threadExcerpt,
+		threads,
+		threadData,
+		uploadStatus,
+		abortedUpload,
+		audioMap,
+		imageMap,
+		videoMap,
+		stageIndex,
+		animateStageIndex,
+		stage,
+		animateStage,
+		timer,
+	} = state
 
-	const {state, dispatch} = useContext(InterfaceContext)
-	const {threadExcerpt, threads, threadData} = state
-
-	const [abortedUpload, setAbortedUpload] = useState(false)
-	const [audioMap, setAudioMap] = useState<any>(null)
-	const [imageMap, setImageMap] = useState<any>(null)
-	const [videoMap, setVideoMap] = useState<any>(null)
-
-	const [stageIndex, setStageIndex] = useState(-1)
-	const [animateStage, setAnimateStage] = useState<number>(0)
-	const [timer, setTimer] = useState<any>(null)
 	const wrapStart = 4
 
-	const moveOn = [Stage.Friends]
+	const isActive = (stageName: StageName) =>
+		stageIndex >= 0 &&
+		stage?.name == stageName &&
+		animateStage?.name == stageName
 
-	const activeStage = () => stages[stageIndex]?.name
+	const setStageByName = (stageName: StageName) => {
+		dispatch(createAction(Action.setStageByName, stageName))
+	}
 
-	const activeAnimatedStage = () => stages[animateStage]?.name
-
-	const setActiveStage = (stage: Stage) =>
-		setStageIndex(stages.findIndex((elm) => elm.name == stage))
-
+	/**
+	 * The point which the actual wrap has started
+	 * @returns whether or not wrap time has started
+	 */
 	const wrapTime = () => stageIndex > wrapStart - 1
 
-	const isActive = (stage: Stage) =>
-		activeStage() == stage && activeAnimatedStage() == stage
-
-	const [uploadStatus, setUploadStatus] = useState<{
-		step: number
-		message: string
-	}>({
-		step: 0,
-		message: 'Add data',
-	})
-
+	/**
+	 * Initialize stage to 0 to make animation trigger
+	 */
 	useEffect(() => {
-		setStageIndex(0)
+		dispatch(createAction(Action.setStageIndex, 0))
 	}, [])
 
+	/**
+	 * Timer to go to the next stage once wrap time is started
+	 */
 	useEffect(() => {
 		if (timer) clearTimeout(timer)
 		if (!wrapTime()) return
 
 		const nextStage = (stageIndex + 1) % stages.length
 		const t = setTimeout(() => {
-			setStageIndex(nextStage < wrapStart ? wrapStart : nextStage)
-		}, stages[stageIndex].time)
-		setTimer(t)
+			dispatch(
+				createAction(
+					Action.setStageIndex,
+					nextStage < wrapStart ? wrapStart : nextStage
+				)
+			)
+		}, stage.time)
+		dispatch(createAction(Action.setTimer, t))
 	}, [stageIndex])
 
-	// TODO:
-	// Error handling if no jsonfiles are found
-	const openFileSelector = async () => {
-		try {
-			setAbortedUpload(false)
-			const directory: FileSystemDirectoryHandle = await (
-				window as any
-			).showDirectoryPicker()
-			console.log('Getting all files')
-			setUploadStatus({
-				step: 1,
-				message: 'Getting all files',
+	useEffect(() => {
+		dispatch(
+			createAction(Action.setUploadStatus, {
+				step: 0,
+				message: Status.Empty,
 			})
-			const files = await getAllFiles(directory)
-			//files.forEach((f) => console.log(f.type))
-			const jsonFiles = files.filter((file: File) =>
-				file.type.includes('json')
-			)
-			setUploadStatus({
-				step: 2,
-				message: 'Getting all media',
-			})
-			const imageFiles = files.filter((file: File) =>
-				file.type.includes('image')
-			)
-
-			const videoFiles = files.filter((file: File) =>
-				file.type.includes('video')
-			)
-
-			const imageMap = imageFiles.reduce(nameToFile, new Map())
-
-			const audioMap = videoFiles.reduce(nameToFile, new Map()) // Audio files are .mp4 files
-
-			const videoMap = videoFiles.reduce(nameToFile, new Map())
-
-			setImageMap(imageMap)
-			setAudioMap(audioMap)
-			setVideoMap(videoMap)
-
-			setUploadStatus({
-				step: 3,
-				message: 'Collecting chats',
-			})
-			const threads: Map<string, threadExcerpt> =
-				await collectThreadExcerpts(jsonFiles, imageMap)
-			setUploadStatus({
-				step: 4,
-				message: 'Sorting chats',
-			})
-			const sorted = [...threads.values()].sort(
-				(a: threadExcerpt, b: threadExcerpt) => {
-					return b.messageCount - a.messageCount
-				}
-			)
-			console.log(sorted)
-
-			dispatch(createAction(Action.setThreads, sorted))
-			setUploadStatus({
-				step: 5,
-				message: 'Ready',
-			})
-			setActiveStage(Stage.Friends)
-		} catch (error: any) {
-			if (error instanceof DOMException) {
-				console.log(error)
-				setAbortedUpload(true)
-			} else {
-				console.log(error)
-			}
-		}
-	}
-
-	const handleThreadChange = async (thread: threadExcerpt) => {
-		const threadData = await collectThread(
-			thread,
-			imageMap,
-			audioMap,
-			videoMap,
-			setUploadStatus
 		)
-		console.log(threadData)
-		dispatch(createAction(Action.setThreadData, threadData))
-	}
-
-	useEffect(() => {
-		if (threads.length == 0) return setActiveStage(Stage.Upload)
-
-		if (threadExcerpt != null) {
-			handleThreadChange(threadExcerpt)
-			setActiveStage(Stage.Collect)
-		} else {
-			setActiveStage(Stage.Pick)
-		}
-	}, [threadExcerpt])
-
-	useEffect(() => {
-		if (threads.length == 0) return setActiveStage(Stage.Upload)
-
-		if (!threadData) return setActiveStage(Stage.Pick)
-
-		setActiveStage(Stage.Intro)
-	}, [threadData])
-
-	useEffect(() => {
-		setTimeout(() => {
-			setAnimateStage(stageIndex)
-		}, 300)
-		if (moveOn.includes(stages[stageIndex]?.name)) {
-			setTimeout(() => {
-				setStageIndex(stageIndex + 1)
-			}, 2000)
-		}
-	}, [stageIndex])
-
-	useEffect(() => {
-		setUploadStatus({
-			step: 0,
-			message: '',
-		})
-		if (isActive(Stage.Pick)) {
+		if (isActive(StageName.Pick)) {
 			dispatch(createAction(Action.setThreadExcerpt, null))
 		}
 	}, [animateStage])
@@ -210,15 +106,15 @@ const Wrap: NextPage = () => {
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
 			<Layout>
-				<FadeScale showIf={isActive(Stage.Upload)}>
+				<FadeScale showIf={isActive(StageName.Upload)}>
 					<Upload
 						uploadStatus={uploadStatus}
-						openFileSelector={openFileSelector}
+						openFileSelector={handleFileSelector}
 						abortedUpload={abortedUpload}
 					/>
 				</FadeScale>
 
-				<FadeScale showIf={isActive(Stage.Friends)}>
+				<FadeScale showIf={isActive(StageName.Friends)}>
 					<div className='flex flex-col items-center p-4'>
 						<p className='big-title text-center'>
 							Woah that&apos;s a lot of friends!
@@ -226,7 +122,7 @@ const Wrap: NextPage = () => {
 					</div>
 				</FadeScale>
 
-				<Fade showIf={isActive(Stage.Pick)}>
+				<Fade showIf={isActive(StageName.Pick)}>
 					<div className='w-full flex flex-col items-center my-6 px-6'>
 						<Label className='mb-2'>Step 2</Label>
 						<h1 className='big-title text-center mb-6'>
@@ -236,14 +132,27 @@ const Wrap: NextPage = () => {
 					</div>
 				</Fade>
 
-				<FadeScale showIf={isActive(Stage.Collect) && threadExcerpt != null}>
+				<FadeScale
+					showIf={
+						isActive(StageName.Collect) && threadExcerpt != null
+					}>
 					<div className='w-full flex flex-col items-center my-6 px-6 justify-center'>
 						<Label className='mb-2'>{threadExcerpt?.title}</Label>
 						<Progressbar
-							max={threadExcerpt ? threadExcerpt.files.length + 2 : 2}
+							max={
+								threadExcerpt
+									? threadExcerpt.files.length + 2
+									: 2
+							}
 							step={uploadStatus.step}
 							className='mt-4 w-48'
-							text={uploadStatus.message}
+							text={
+								uploadStatus.suffix
+									? uploadStatus.message +
+									  ' ' +
+									  uploadStatus.suffix
+									: uploadStatus.message
+							}
 						/>
 					</div>
 				</FadeScale>
@@ -254,24 +163,26 @@ const Wrap: NextPage = () => {
 						offset={wrapStart}
 						stage={stageIndex}
 						stages={stages}
-						setStage={setStageIndex}
+						callback={(idx: number) => {
+							dispatch(createAction(Action.setStageIndex, idx))
+						}}
 					/>
 				)}
 
-				<FadeScale showIf={wrapTime() && isActive(Stage.Intro)}>
+				<FadeScale showIf={wrapTime() && isActive(StageName.Intro)}>
 					<IntroSlide thread={threadData} />
 				</FadeScale>
 
-				<FadeScale showIf={wrapTime() && isActive(Stage.Counts)}>
+				<FadeScale showIf={wrapTime() && isActive(StageName.Counts)}>
 					<CountSlide type={'messages'} thread={threadData} />
 				</FadeScale>
 
-				<FadeScale showIf={wrapTime() && isActive(Stage.Timeline)}>
+				<FadeScale showIf={wrapTime() && isActive(StageName.Timeline)}>
 					<TimelineSlide thread={threadData} />
 				</FadeScale>
 
 				<FadeScale
-					showIf={wrapTime() && isActive(Stage.TopContributors)}>
+					showIf={wrapTime() && isActive(StageName.TopContributors)}>
 					<ContributorsSlide
 						title={'Most messages'}
 						text={'messages'}
@@ -292,7 +203,7 @@ const Wrap: NextPage = () => {
 				</FadeScale>
 
 				<FadeScale
-					showIf={wrapTime() && isActive(Stage.LongestMessages)}>
+					showIf={wrapTime() && isActive(StageName.LongestMessages)}>
 					<ContributorsSlide
 						title={'Longest messages'}
 						text={'words on average'}
@@ -311,7 +222,7 @@ const Wrap: NextPage = () => {
 					/>
 				</FadeScale>
 
-				<FadeScale showIf={wrapTime() && isActive(Stage.LixLevel)}>
+				<FadeScale showIf={wrapTime() && isActive(StageName.LixLevel)}>
 					<ContributorsSlide
 						title={'Lix level'}
 						text={'lix'}
@@ -330,11 +241,11 @@ const Wrap: NextPage = () => {
 					/>
 				</FadeScale>
 
-				<FadeScale showIf={wrapTime() && isActive(Stage.Images)}>
+				<FadeScale showIf={wrapTime() && isActive(StageName.Images)}>
 					<PhotoMemorySlide thread={threadData} />
 				</FadeScale>
 
-				<FadeScale showIf={wrapTime() && isActive(Stage.Videos)}>
+				<FadeScale showIf={wrapTime() && isActive(StageName.Videos)}>
 					<VideoMemorySlide thread={threadData} />
 				</FadeScale>
 			</Layout>

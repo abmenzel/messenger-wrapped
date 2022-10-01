@@ -1,16 +1,16 @@
-import { Stage } from "./stages"
+import { StageName } from './stages'
 
 type menuItemLink = {
-    type: 'link'
+	type: 'link'
 	label: string
-    link: string
-    visible: () => boolean
+	link: string
+	visible: () => boolean
 }
 type menuItemStage = {
-    type: 'function'
+	type: 'function'
 	label: string
-    visible: () => boolean
-    stage: Stage
+	visible: () => boolean
+	stage: StageName
 }
 
 type menuItem = menuItemLink | menuItemStage
