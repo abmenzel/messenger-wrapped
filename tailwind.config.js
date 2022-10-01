@@ -7,18 +7,20 @@ module.exports = {
 	],
 	theme: {
 		extend: {
+			spacing: {
+				'2xfull': '200%',
+			},
 			colors: {
-				'theme-0': {
-					primary: '#111',
-					secondary: '#ffd4de',
-				},
-				'theme-1': {
-					primary: '#4d2c56',
-					secondary: '#e9ac8d',
-				},
-				'theme-2': {
-					primary: '#ffd4de',
-					secondary: '#111',
+				theme: {
+					purple: '#4d2c56',
+					'light-orange': '#e9ac8d',
+					'dark-blue': '#3600e8',
+					'almost-black': '#111',
+					'light-pink': '#ffd4de',
+					thistle: '#c9b0d4',
+					lime: '#d2f66a',
+					'midnight-blue': '#172172',
+					hotpink: '#f76dc2',
 				},
 			},
 			animation: {
@@ -28,8 +30,32 @@ module.exports = {
 				bounceIn: 'bounceIn 0.2s ease-out forwards',
 				moveUp: 'moveUp 5s ease-in-out forwards',
 				moveAllRight: 'moveAllRight 3s ease-in-out forwards',
+				grain: 'grain 8s steps(8) infinite',
 			},
 			keyframes: {
+				grain: {
+					'0%': { transform: 'translate(0, 0)' },
+					'5%': { transform: 'translate(10%, -5%)' },
+					'10%': { transform: 'translate(-5%, 10%)' },
+					'15%': { transform: 'translate(-10%, -9%)' },
+					'20%': { transform: 'translate(-2%, 5%)' },
+					'25%': { transform: 'translate(-15%, -2%)' },
+					'30%': { transform: 'translate(7%, 15%)' },
+					'35%': { transform: 'translate(10%, -5%)' },
+					'40%': { transform: 'translate(-5%, 9%)' },
+					'45%': { transform: 'translate(3%, -15%)' },
+					'50%': { transform: 'translate(-15%, 11%)' },
+					'55%': { transform: 'translate(-5%, -9%)' },
+					'60%': { transform: 'translate(10%, 5%)' },
+					'65%': { transform: 'translate(7%, -6%)' },
+					'70%': { transform: 'translate(-6%, 15%)' },
+					'75%': { transform: 'translate(5%, 9%)' },
+					'80%': { transform: 'translate(-3%, -15%)' },
+					'85%': { transform: 'translate(7%, 6%)' },
+					'90%': { transform: 'translate(-10%, -5%)' },
+					'95%': { transform: 'translate(10%, 10%)' },
+					'100%': { transform: 'translate(5%, -6%)' },
+				},
 				width: {
 					'0%': {
 						width: '0%',

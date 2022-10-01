@@ -30,36 +30,36 @@ export const stages: Stage[] = [
 	{
 		name: StageName.Counts,
 		time: 5000,
-		theme: themes.purple,
+		theme: themes.blue,
 	},
 	{
 		name: StageName.Timeline,
-		theme: themes.purple,
+		theme: themes.blue,
 		time: 7000,
 	},
 	{
 		name: StageName.TopContributors,
-		theme: themes.purple,
+		theme: themes.lime,
 		time: 7000,
 	},
 	{
 		name: StageName.LongestMessages,
 		time: 7000,
-		theme: themes.purple,
+		theme: themes.lime,
 	},
 	{
 		name: StageName.LixLevel,
 		time: 7000,
-		theme: themes.purple,
+		theme: themes.lime,
 	},
 	{
 		name: StageName.Images,
 		time: 8000,
-		theme: themes.purple,
+		theme: themes.pink,
 	},
 	{
 		name: StageName.Videos,
 		time: 25000,
-		theme: themes.purple,
+		theme: themes.pink,
 	},
 ]

@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { message, thread } from '../types/fb'
 import { epochToDate, getWeek } from '../utils/time'
 import CountUp from 'react-countup'
 import Label from './Label'
 import { FadeScale } from './Animation'
-import {
-	decodeFBString,
-} from '../utils/messages'
+import { decodeFBString } from '../utils/messages'
 import Image from 'next/image'
+import InterfaceContext from '../context/interface'
 
 const IntroSlide = (props: any) => {
 	const { thread }: { thread: thread } = props
@@ -28,6 +27,8 @@ const IntroSlide = (props: any) => {
 
 const TimelineSlide = (props: any) => {
 	const { thread }: { thread: thread } = props
+	const { state } = useContext(InterfaceContext)
+	const { theme } = state
 	return (
 		<div className='relative px-6'>
 			<div className='flex items-center justify-start flex-col'>
@@ -37,15 +38,19 @@ const TimelineSlide = (props: any) => {
 				</p>
 				<div className='w-full'>
 					{[...thread.messageBucket.entries()].map(
-						([year, months],idx) => {
+						([year, months], idx) => {
 							return (
-								<div key={`year-${idx}`} className=' flex flex-col mb-2'>
+								<div
+									key={`year-${idx}`}
+									className=' flex flex-col mb-2'>
 									<p className='text-theme-1-secondary font-extrabold text-xl'>
 										{year}
 									</p>
 									{[...months.values()].map((count, idx) => {
 										return (
-											<div key={`months-${idx}`} className='flex w-full justify-start items-center'>
+											<div
+												key={`months-${idx}`}
+												className='flex w-full justify-start items-center'>
 												<div
 													className='h-0.5'
 													style={{
@@ -64,7 +69,7 @@ const TimelineSlide = (props: any) => {
 															animationFillMode:
 																'forwards',
 														}}
-														className={`h-full bg-theme-1-secondary animate-width w-0`}
+														className={`h-full ${theme.bgSecondary} animate-width w-0`}
 													/>
 												</div>
 											</div>
