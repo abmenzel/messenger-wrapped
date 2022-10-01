@@ -10,7 +10,7 @@ type menuItemStage = {
 	type: 'function'
 	label: string
 	visible: () => boolean
-	stage: StageName
+	trigger: () => void
 }
 
 type menuItem = menuItemLink | menuItemStage

@@ -3,41 +3,41 @@
 @tailwind utilities;
 
 @layer base {
-  .big-title {
-    @apply text-5xl text-theme-1-secondary font-bold
-  }
-  .sub-title {
-    @apply text-base text-theme-1-secondary
-  }
-  .btn-primary{
-    @apply bg-theme-1-secondary text-theme-1-primary font-bold uppercase py-2 px-4 rounded-md
-  }
+	.big-title {
+		@apply text-5xl font-bold;
+	}
+	.sub-title {
+		@apply text-base;
+	}
+	.btn-primary {
+		@apply font-bold uppercase py-2 px-4 rounded-md;
+	}
 }
 
 html,
 body {
-  padding: 0;
-  margin: 0;
-  outline: none;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+	padding: 0;
+	margin: 0;
+	outline: none;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+		Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+	color: inherit;
+	text-decoration: none;
 }
 
 * {
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 @media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
+	html {
+		color-scheme: dark;
+	}
+	body {
+		color: white;
+		background: black;
+	}
 }

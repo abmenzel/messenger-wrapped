@@ -1,5 +1,6 @@
 import { thread, threadExcerpt } from '../types/fb'
 import { Stage } from '../types/stages'
+import { Theme } from './interface.theme'
 
 export enum Action {
 	setThreadExcerpt = 'setThreadExcerpt',
@@ -15,6 +16,7 @@ export enum Action {
 	setStageByName = 'setStageByName',
 	setAnimateStageByName = 'setAnimateStageByName',
 	setTimer = 'setTimer',
+	setTheme = 'setTheme',
 }
 
 export enum Status {
@@ -49,6 +51,7 @@ export type InterfaceState = {
 	stage: Stage
 	animateStage: Stage
 	timer: null | NodeJS.Timeout
+	theme: Theme
 }
 
 export type Dispatch = (action: { type: Action; payload: any }) => void

@@ -5,6 +5,7 @@ import { StageName } from '../types/stages'
 import { getAllFiles, nameToFile } from '../utils/files'
 import { collectThread, collectThreadExcerpts } from '../utils/messages'
 import reducer, { createAction } from './interface.reducer'
+import { themes } from './interface.theme'
 import { Action, Dispatch, InterfaceState, Status } from './interface.types'
 
 export const initialState: InterfaceState = {
@@ -24,6 +25,7 @@ export const initialState: InterfaceState = {
 	stage: stages[0],
 	animateStage: stages[0],
 	timer: null,
+	theme: themes.dark,
 }
 
 const InterfaceContext = createContext<{
@@ -160,6 +162,7 @@ export const InterfaceProvider = ({ children }: { children: any }) => {
 	 * When the thread excerpt is picked, start collecting all the data from the thread
 	 */
 	useEffect(() => {
+		if (state.stageIndex < 0) return
 		if (state.threads.length == 0) return setStageByName(StageName.Upload)
 
 		if (state.threadExcerpt != null) {
@@ -174,6 +177,7 @@ export const InterfaceProvider = ({ children }: { children: any }) => {
 	 * When thread data changes change the stage
 	 */
 	useEffect(() => {
+		if (state.stageIndex < 0) return
 		if (state.threads.length == 0) return setStageByName(StageName.Upload)
 
 		if (!state.threadData) return setStageByName(StageName.Pick)
@@ -190,7 +194,7 @@ export const InterfaceProvider = ({ children }: { children: any }) => {
 				createAction(Action.setAnimateStageIndex, state.stageIndex)
 			)
 		}, 300)
-		if (moveOn.includes(stages[state.stageIndex]?.name)) {
+		if (moveOn.includes(state.stage.name)) {
 			setTimeout(() => {
 				dispatch(
 					createAction(Action.setStageIndex, state.stageIndex + 1)
@@ -198,6 +202,15 @@ export const InterfaceProvider = ({ children }: { children: any }) => {
 			}, 2000)
 		}
 	}, [state.stageIndex])
+
+	/**
+	 * Update theme depending on active stage
+	 */
+	useEffect(() => {
+		if (state.animateStage) {
+			dispatch(createAction(Action.setTheme, state.animateStage.theme))
+		}
+	}, [state.animateStage])
 
 	const value = { state, dispatch, handleFileSelector }
 	return (

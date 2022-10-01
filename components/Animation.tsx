@@ -8,7 +8,7 @@ const Fade = (props: any) => {
 			in={showIf}
 			unmountOnExit={true}
 			onExited={() => {
-                exitCallback && exitCallback()
+				exitCallback && exitCallback()
 			}}
 			timeout={300}
 			classNames={{
@@ -31,7 +31,7 @@ const FadeScale = (props: any) => {
 			in={showIf}
 			unmountOnExit={true}
 			onExited={() => {
-                exitCallback && exitCallback()
+				exitCallback && exitCallback()
 			}}
 			timeout={300}
 			classNames={{

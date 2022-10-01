@@ -33,9 +33,6 @@ const Wrap: NextPage = () => {
 		threadData,
 		uploadStatus,
 		abortedUpload,
-		audioMap,
-		imageMap,
-		videoMap,
 		stageIndex,
 		animateStageIndex,
 		stage,
@@ -43,16 +40,21 @@ const Wrap: NextPage = () => {
 		timer,
 	} = state
 
+	/*useEffect(() => {
+		console.log()
+		console.log('STAGE')
+		console.log(stageIndex)
+		console.log(stage)
+		console.log(animateStageIndex)
+		console.log(animateStage)
+	})*/
+
 	const wrapStart = 4
 
 	const isActive = (stageName: StageName) =>
 		stageIndex >= 0 &&
 		stage?.name == stageName &&
 		animateStage?.name == stageName
-
-	const setStageByName = (stageName: StageName) => {
-		dispatch(createAction(Action.setStageByName, stageName))
-	}
 
 	/**
 	 * The point which the actual wrap has started
@@ -116,7 +118,7 @@ const Wrap: NextPage = () => {
 
 				<FadeScale showIf={isActive(StageName.Friends)}>
 					<div className='flex flex-col items-center p-4'>
-						<p className='big-title text-center'>
+						<p className={`big-title text-center`}>
 							Woah that&apos;s a lot of friends!
 						</p>
 					</div>

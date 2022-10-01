@@ -1,3 +1,5 @@
+import { Theme } from '../context/interface.theme'
+
 export enum StageName {
 	Upload = 'upload',
 	Friends = 'lots-of-friends',
@@ -16,4 +18,5 @@ export enum StageName {
 export type Stage = {
 	name: StageName
 	time: number
+	theme: Theme
 }

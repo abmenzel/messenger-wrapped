@@ -82,6 +82,11 @@ const reducer = (
 				...state,
 				timer: action.payload,
 			}
+		case Action.setTheme:
+			return {
+				...state,
+				theme: action.payload,
+			}
 	}
 }
 

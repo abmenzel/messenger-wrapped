@@ -1,31 +1,14 @@
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import MenuIcon from '../../assets/icons/menu-icon.svg'
+import InterfaceContext from '../../context/interface'
+import { createAction } from '../../context/interface.reducer'
+import { Theme } from '../../context/interface.theme'
+import { Action } from '../../context/interface.types'
 import { menuItem } from '../../types/menu'
 import { StageName } from '../../types/stages'
 
-const menuData: menuItem[] = [
-	{
-		type: 'link',
-		label: 'Get started',
-		link: '/',
-		visible: () => true,
-	},
-	{
-		type: 'function',
-		label: 'Pick group',
-		visible: () => true,
-		stage: StageName.Pick,
-	},
-	{
-		type: 'link',
-		label: 'Playground',
-		link: '/playground',
-		visible: () => true,
-	},
-]
-
-const MenuItem = ({ item }: { item: menuItem }) => {
+const MenuItem = ({ item, setOpen }: { item: menuItem; setOpen: Function }) => {
 	const className =
 		'cursor-pointer block w-full text-center font-bold text-xl whitespace-nowrap uppercase'
 
@@ -43,24 +26,43 @@ const MenuItem = ({ item }: { item: menuItem }) => {
 		return (
 			<>
 				{item.visible() && (
-					<div className={className}>{item.label}</div>
+					<div
+						onClick={() => {
+							setOpen(false)
+							item.trigger()
+						}}
+						className={className}>
+						{item.label}
+					</div>
 				)}
 			</>
 		)
 	}
 }
 
-const MenuContent = ({ open }: { open: boolean }) => {
+const MenuContent = ({
+	open,
+	theme,
+	menuData,
+	setOpen,
+}: {
+	open: boolean
+	theme: Theme
+	menuData: menuItem[]
+	setOpen: Function
+}) => {
 	return (
 		<div
 			className={`${
 				open ? '' : 'opacity-0 pointer-events-none translate-y-2'
-			} transition-all absolute bottom-12 rounded-md bg-theme-1-secondary text-theme-1-primary p-4 px-8`}>
+			} transition-all absolute bottom-12 rounded-md ${
+				theme.bgSecondary
+			} ${theme.textPrimary} p-4 px-8`}>
 			<ul>
 				{menuData.map((item, idx) => {
 					return (
 						<li key={idx}>
-							<MenuItem item={item} />
+							<MenuItem item={item} setOpen={setOpen} />
 						</li>
 					)
 				})}
@@ -71,6 +73,12 @@ const MenuContent = ({ open }: { open: boolean }) => {
 
 const Menu = () => {
 	const [open, setOpen] = useState(false)
+	const { state, dispatch } = useContext(InterfaceContext)
+	const { theme } = state
+
+	const setStageByName = (stageName: StageName) => {
+		dispatch(createAction(Action.setStageByName, stageName))
+	}
 	// TODO
 	// Add link to pick group
 	// Add link to upload data
@@ -78,12 +86,38 @@ const Menu = () => {
 	// Add link to playground
 	// Add link to credits?
 
+	const menuData: menuItem[] = [
+		{
+			type: 'link',
+			label: 'Get started',
+			link: '/',
+			visible: () => true,
+		},
+		{
+			type: 'function',
+			label: 'Pick group',
+			visible: () => state.threads?.length > 0,
+			trigger: () => setStageByName(StageName.Pick),
+		},
+		{
+			type: 'link',
+			label: 'Playground',
+			link: '/playground',
+			visible: () => state.threadData != null,
+		},
+	]
+
 	return (
 		<div className='relative flex flex-col items-center'>
-			<MenuContent open={open} />
+			<MenuContent
+				theme={theme}
+				open={open}
+				menuData={menuData}
+				setOpen={setOpen}
+			/>
 			<button
 				onClick={() => setOpen(!open)}
-				className='aspect-square rounded-md bg-theme-1-secondary w-10 fill-theme-1-primary flex items-center p-1'>
+				className={`transition-colors aspect-square rounded-md w-10 ${theme.bgSecondary} ${theme.fill} flex items-center p-1`}>
 				<MenuIcon height='100%' width='100%' viewBox='0 0 48 48' />
 			</button>
 		</div>
