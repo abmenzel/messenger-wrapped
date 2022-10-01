@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { thread, threadExcerpt } from '../types/fb'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
@@ -24,6 +24,7 @@ import { Stage, StageName } from '../types/stages'
 import InterfaceContext from '../context/interface'
 import { Action, Status } from '../context/interface.types'
 import { createAction } from '../context/interface.reducer'
+import Confetti from '../components/Confetti'
 
 const Wrap: NextPage = () => {
 	const { state, dispatch, handleFileSelector } = useContext(InterfaceContext)
@@ -107,6 +108,7 @@ const Wrap: NextPage = () => {
 				<meta name='description' content='Messenger Wrapped' />
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
+			<Confetti />
 			<Layout>
 				<FadeScale showIf={isActive(StageName.Upload)}>
 					<Upload
@@ -117,7 +119,7 @@ const Wrap: NextPage = () => {
 				</FadeScale>
 
 				<FadeScale showIf={isActive(StageName.Friends)}>
-					<div className='flex flex-col items-center p-4'>
+					<div className='flex h-full flex-col items-center p-4'>
 						<p className={`big-title text-center`}>
 							Woah that&apos;s a lot of friends!
 						</p>

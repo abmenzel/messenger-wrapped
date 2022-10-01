@@ -199,7 +199,7 @@ export const InterfaceProvider = ({ children }: { children: any }) => {
 				dispatch(
 					createAction(Action.setStageIndex, state.stageIndex + 1)
 				)
-			}, 2000)
+			}, 100000)
 		}
 	}, [state.stageIndex])
 
