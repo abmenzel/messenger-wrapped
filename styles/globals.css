@@ -10,7 +10,7 @@
 		@apply text-base;
 	}
 	.btn-primary {
-		@apply font-bold uppercase py-2 px-4 rounded-md;
+		@apply font-bold uppercase py-2 px-4 rounded-md inline-flex;
 	}
 }
 

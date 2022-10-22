@@ -108,7 +108,7 @@ export const InterfaceProvider = ({ children }: { children: any }) => {
 					return b.messageCount - a.messageCount
 				}
 			)
-			console.log(sorted)
+			console.log('Sorted chats', sorted)
 
 			dispatch(createAction(Action.setThreads, sorted))
 			dispatch(
@@ -199,7 +199,7 @@ export const InterfaceProvider = ({ children }: { children: any }) => {
 				dispatch(
 					createAction(Action.setStageIndex, state.stageIndex + 1)
 				)
-			}, 100000)
+			}, 3000)
 		}
 	}, [state.stageIndex])
 

@@ -1,7 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { thread, threadExcerpt } from '../types/fb'
+import { useContext, useEffect } from 'react'
 import Label from '../components/Label'
 import Progressbar from '../components/Progressbar'
 import { Fade, FadeScale } from '../components/Animation'
@@ -15,12 +14,10 @@ import {
 	VideoMemorySlide,
 } from '../components/Slides'
 import StageProgress from '../components/StageProgress'
-import { collectThread, collectThreadExcerpts } from '../utils/messages'
-import { getAllFiles, nameToFile } from '../utils/files'
 import ThreadGrid from '../components/ThreadGrid'
 import Upload from '../components/Upload'
 import Layout from '../components/Layout/Layout'
-import { Stage, StageName } from '../types/stages'
+import { StageName } from '../types/stages'
 import InterfaceContext from '../context/interface'
 import { Action, Status } from '../context/interface.types'
 import { createAction } from '../context/interface.reducer'
@@ -108,7 +105,6 @@ const Wrap: NextPage = () => {
 				<meta name='description' content='Messenger Wrapped' />
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
-			<Confetti />
 			<Layout>
 				<FadeScale showIf={isActive(StageName.Upload)}>
 					<Upload
@@ -118,6 +114,7 @@ const Wrap: NextPage = () => {
 					/>
 				</FadeScale>
 
+				{isActive(StageName.Friends) && <Confetti />}
 				<FadeScale showIf={isActive(StageName.Friends)}>
 					<div className='flex h-full flex-col items-center p-4'>
 						<p className={`big-title text-center`}>

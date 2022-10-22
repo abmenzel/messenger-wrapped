@@ -25,7 +25,7 @@
 			}
 		},
 		{
-			"sender_id_INTERNAL": 0,
+			"sender_id_INTERNAL": 1,
 			"sender_name": "Alice",
 			"timestamp_ms": 1539945494667,
 			"content": "Lorem ipsum dolor sit amet",
@@ -38,7 +38,7 @@
 			}
 		},
 		{
-			"sender_id_INTERNAL": 0,
+			"sender_id_INTERNAL": 2,
 			"sender_name": "Mallory",
 			"timestamp_ms": 1539945694667,
 			"content": "Lorem ipsum dolor sit amet",
@@ -57,6 +57,32 @@
 					"creation_timestamp": 1539945694667
 				}
 			]
+		},
+		{
+			"sender_id_INTERNAL": 0,
+			"sender_name": "Bob",
+			"timestamp_ms": 1539948492867,
+			"content": "Hey Mallory, what's up?",
+			"type": "Generic",
+			"is_unsent": false,
+			"is_taken_down": false,
+			"bumped_message_metadata": {
+				"bumped_message": "Hey Mallory, what's up?",
+				"is_bumped": false
+			}
+		},
+		{
+			"sender_id_INTERNAL": 2,
+			"sender_name": "Mallory",
+			"timestamp_ms": 1539945694887,
+			"content": "Bob i'm good",
+			"type": "Generic",
+			"is_unsent": false,
+			"is_taken_down": false,
+			"bumped_message_metadata": {
+				"bumped_message": "Bob i'm good",
+				"is_bumped": false
+			}
 		}
 	],
 	"title": "Bob, Alice and Mallory",

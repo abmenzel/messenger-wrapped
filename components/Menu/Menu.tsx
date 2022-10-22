@@ -80,10 +80,8 @@ const Menu = () => {
 		dispatch(createAction(Action.setStageByName, stageName))
 	}
 	// TODO
-	// Add link to pick group
 	// Add link to upload data
 	// Add link to share
-	// Add link to playground
 	// Add link to credits?
 
 	const menuData: menuItem[] = [
@@ -95,14 +93,20 @@ const Menu = () => {
 		},
 		{
 			type: 'function',
+			label: 'wrap',
+			visible: () => true,
+			trigger: () => setStageByName(StageName.Upload),
+		},
+		{
+			type: 'function',
 			label: 'Pick group',
 			visible: () => state.threads?.length > 0,
 			trigger: () => setStageByName(StageName.Pick),
 		},
 		{
 			type: 'link',
-			label: 'Playground',
-			link: '/playground',
+			label: 'Explore',
+			link: '/explore',
 			visible: () => state.threadData != null,
 		},
 	]
@@ -115,11 +119,21 @@ const Menu = () => {
 				menuData={menuData}
 				setOpen={setOpen}
 			/>
-			<button
-				onClick={() => setOpen(!open)}
-				className={`transition-colors aspect-square rounded-md w-10 ${theme.bgSecondary} ${theme.fill} flex items-center p-1`}>
-				<MenuIcon height='100%' width='100%' viewBox='0 0 48 48' />
-			</button>
+			<nav>
+				<ul className='flex items-center gap-x-2'>
+					<li>
+						<button
+							onClick={() => setOpen(!open)}
+							className={`transition-colors aspect-square rounded-md w-10 ${theme.bgSecondary} ${theme.fill} flex items-center p-1`}>
+							<MenuIcon
+								height='100%'
+								width='100%'
+								viewBox='0 0 48 48'
+							/>
+						</button>
+					</li>
+				</ul>
+			</nav>
 		</div>
 	)
 }
