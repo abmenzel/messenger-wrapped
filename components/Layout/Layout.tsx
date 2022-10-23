@@ -30,7 +30,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
 			<div className='w-full max-w-sm flex items-center z-[5]'>
 				<div className='px-4 grow'>{children}</div>
 				<div
-					className={`fixed z-10 ${theme.gradientFrom} bg-gradient-to-t bottom-0 max-w-sm w-full flex justify-center py-4 pt-16`}>
+					className={`fixed z-10 ${theme.gradientFrom} transition-colors bg-gradient-to-t bottom-0 max-w-sm w-full flex justify-center py-4 pt-16`}>
 					<Menu />
 				</div>
 			</div>

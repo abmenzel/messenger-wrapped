@@ -57,7 +57,7 @@ const MediaCarousel = ({ media, type }: { media: message[]; type: string }) => {
 	}
 
 	return (
-		<div className='pb-12 px-4 w-full relative flex flex-col items-center mt-2'>
+		<div className='px-4 w-full relative flex flex-col items-center mt-2'>
 			<div className='mb-2' onClick={() => toggleSort()}>
 				Sort by{' '}
 				<span className='cursor-pointer font-bold inline-flex gap-x-1 items-center'>

@@ -20,7 +20,7 @@ const ExploreVideos = () => {
 				<div className='w-full text-center flex flex-col items-center'>
 					<ExploreCheck />
 					{threadData && (
-						<div className='w-full flex flex-col items-center'>
+						<div className='py-8 pb-32 w-full flex flex-col items-center'>
 							<Label className='mb-2'>Explore videos</Label>
 							<MediaCarousel
 								type='videos'

@@ -129,7 +129,7 @@ const Wrap: NextPage = () => {
 						<h1 className='big-title text-center mb-6'>
 							Pick group
 						</h1>
-						<ThreadGrid data={threads} dispatch={dispatch} />
+						<ThreadGrid threads={threads} />
 					</div>
 				</Fade>
 

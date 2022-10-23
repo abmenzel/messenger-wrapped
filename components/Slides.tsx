@@ -162,7 +162,7 @@ const ContributorsSlide = (props: any) => {
 	]
 
 	return (
-		<div className='flex flex-col items-center'>
+		<div className='flex flex-col'>
 			<p className='big-title text-center mb-4'>{title}</p>
 			<div className='text-left'>
 				{values
@@ -171,7 +171,7 @@ const ContributorsSlide = (props: any) => {
 						return (
 							<div className='mb-4' key={value.name}>
 								<div
-									className={`${animationDelay[idx]} animate-scaleIn opacity-0 scale-110 flex items-center gap-2 text-sm mb-1 relative left-4`}>
+									className={`${animationDelay[idx]} animate-scaleIn opacity-0 scale-110 flex items-center gap-2 text-sm mb-1 pl-12`}>
 									<Label className='aspect-square items-center justify-center flex font-bold text-base w-14'>
 										{total
 											? `${Math.round(
