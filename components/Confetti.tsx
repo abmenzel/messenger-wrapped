@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import ReactConfetti from 'react-canvas-confetti'
 
 const Confetti = () => {
-	const conf = useRef(null)
+	const conf = useRef<any | null>(null)
 
 	const getInstance = useCallback((instance: any) => {
 		conf.current = instance
