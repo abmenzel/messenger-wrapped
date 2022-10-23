@@ -55,8 +55,9 @@ const getLixLevel = (message: string) => {
 			return acc
 		}
 	}, 0)
-
-	return numberOfWords / periods + (longWords * 100) / numberOfWords
+	const lixLevel = numberOfWords / periods + (longWords * 100) / numberOfWords
+	console.log('lix', lixLevel)
+	return lixLevel
 }
 
 const parseMessage = (
@@ -177,11 +178,13 @@ const collectThread = async (
 
 	// Create thread map
 	for await (const [idx, file] of threadExcerpt.files.entries()) {
-		dispatch(createAction(Action.setUploadStatus, {
-			step: idx,
-			message: Status.GettingAllMessagesInFile,
-			suffix: idx.toString()
-		}))
+		dispatch(
+			createAction(Action.setUploadStatus, {
+				step: idx,
+				message: Status.GettingAllMessagesInFile,
+				suffix: idx.toString(),
+			})
+		)
 
 		const content = await file.text()
 		const json = await JSON.parse(content)
@@ -230,7 +233,7 @@ const collectThread = async (
 					messageCount: prevValue.messageCount + 1,
 					longMessages:
 						prevValue.longMessages +
-						(m.content && m.content.length > 50 ? 1 : 0),
+						(m.content && m.content.length > 50 ? 1 : 1),
 					totalLixLevel:
 						prevValue.totalLixLevel +
 						(m.content ? getLixLevel(m.content) : 0),
@@ -242,7 +245,7 @@ const collectThread = async (
 				participants.set(m.sender_name, {
 					name: m.sender_name,
 					messageCount: 1,
-					longMessages: m.content && m.content.length > 50 ? 1 : 0,
+					longMessages: m.content && m.content.length > 50 ? 1 : 1,
 					totalLixLevel: m.content ? getLixLevel(m.content) : 0,
 					totalWords: m.content ? getNumberOfWords(m.content) : 0,
 					averageWords: 0,
@@ -282,10 +285,12 @@ const collectThread = async (
 		})
 	}
 
-	dispatch(createAction(Action.setUploadStatus, {
-		step: threadExcerpt.files.length + 1,
-		message: Status.SortingMessages
-	}))
+	dispatch(
+		createAction(Action.setUploadStatus, {
+			step: threadExcerpt.files.length + 1,
+			message: Status.SortingMessages,
+		})
+	)
 
 	thread.participants.forEach((value, key) => {
 		thread.participants.set(key, {
@@ -350,10 +355,12 @@ const collectThread = async (
 	thread.messageBucket = messageBucketSorted
 	thread.busiestMonth = busiestMonth
 
-	dispatch(createAction(Action.setUploadStatus, {
-		step: threadExcerpt.files.length + 2,
-		message: Status.Ready
-	}))
+	dispatch(
+		createAction(Action.setUploadStatus, {
+			step: threadExcerpt.files.length + 2,
+			message: Status.Ready,
+		})
+	)
 
 	return thread
 }
