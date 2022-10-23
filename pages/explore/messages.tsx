@@ -34,7 +34,10 @@ const ExploreImages = () => {
 					{threadData && (
 						<div className='w-full flex flex-col items-center'>
 							<Label className='mb-2'>Explore messages</Label>
-							<MediaCarousel media={threadData.messages} />
+							<MediaCarousel
+								type='messages'
+								media={threadData.messages}
+							/>
 						</div>
 					)}
 				</div>

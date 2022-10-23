@@ -3,6 +3,7 @@ import React, { useContext } from 'react'
 import ExploreCheck from '../../components/ExploreCheck'
 import Label from '../../components/Label'
 import Layout from '../../components/Layout/Layout'
+import MediaCarousel from '../../components/MediaCarousel/MediaCarousel'
 import InterfaceContext from '../../context/interface'
 
 const ExploreImages = () => {
@@ -31,9 +32,14 @@ const ExploreImages = () => {
 				<div className='w-full text-center flex flex-col items-center'>
 					<ExploreCheck />
 					{threadData && (
-						<div className='flex flex-col items-center'>
-							<Label className='mb-2'>Explore</Label>
-							<h1 className='big-title'>Images</h1>
+						<div className='w-full flex flex-col items-center'>
+							<Label className='mb-2'>Explore images</Label>
+							<MediaCarousel
+								type='photos'
+								media={threadData.messages.filter(
+									(message) => message.photos.length > 0
+								)}
+							/>
 						</div>
 					)}
 				</div>
