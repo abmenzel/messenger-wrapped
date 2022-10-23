@@ -1,25 +1,29 @@
 import Image from 'next/image'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { message } from '../../types/fb'
 import { decodeFBString } from '../../utils/messages'
 import { epochToDate } from '../../utils/time'
 import Label from '../Label'
 
-const PhotoCard = ({ message }: { message: message }) => {
+const VideoCard = ({ message }: { message: message }) => {
 	const date = epochToDate(message.timestamp_ms)
-	console.log(message.photos)
+	const videoRef = useRef<HTMLVideoElement | null>(null)
+
+	useEffect(() => {
+		if (videoRef.current) {
+			videoRef.current.play()
+		}
+	})
+
 	return (
 		<div>
-			<div className='my-4 px-4 w-full'>
-				{message.photos[0] && (
-					<Image
-						src={URL.createObjectURL(message.photos[0] as File)}
-						alt=''
-						objectFit='contain'
-						objectPosition={'center'}
-						width={200}
-						height={200}
-						layout='responsive'
+			<div className='my-4 px-4 w-full aspect-square flex justify-center items-center'>
+				{message.videos[0] && (
+					<video
+						className='h-full'
+						ref={videoRef}
+						src={URL.createObjectURL(message.videos[0])}
+						controls={true}
 					/>
 				)}
 			</div>
@@ -37,4 +41,4 @@ const PhotoCard = ({ message }: { message: message }) => {
 	)
 }
 
-export default PhotoCard
+export default VideoCard

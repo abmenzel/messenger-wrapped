@@ -6,21 +6,9 @@ import Layout from '../../components/Layout/Layout'
 import MediaCarousel from '../../components/MediaCarousel/MediaCarousel'
 import InterfaceContext from '../../context/interface'
 
-const ExploreImages = () => {
+const ExploreAudio = () => {
 	const { state } = useContext(InterfaceContext)
-	const {
-		theme,
-		threadExcerpt,
-		threads,
-		threadData,
-		uploadStatus,
-		abortedUpload,
-		stageIndex,
-		animateStageIndex,
-		stage,
-		animateStage,
-		timer,
-	} = state
+	const { threadData } = state
 	return (
 		<>
 			<Head>
@@ -33,13 +21,13 @@ const ExploreImages = () => {
 					<ExploreCheck />
 					{threadData && (
 						<div className='w-full flex flex-col items-center'>
-							<Label className='mb-2'>Explore images</Label>
+							<Label className='mb-2'>Explore audio</Label>
 							<MediaCarousel
-								type='photos'
+								type='audio'
 								media={threadData.messages.filter(
 									(message) =>
-										message.photos.length > 0 &&
-										message.photos[0]
+										message.audio.length > 0 &&
+										message.audio[0]
 								)}
 							/>
 						</div>
@@ -50,4 +38,4 @@ const ExploreImages = () => {
 	)
 }
 
-export default ExploreImages
+export default ExploreAudio

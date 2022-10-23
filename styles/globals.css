@@ -10,7 +10,7 @@
 		@apply text-base;
 	}
 	.btn-primary {
-		@apply font-bold uppercase py-2 px-4 rounded-md inline-flex;
+		@apply text-sm font-bold uppercase py-2 px-4 rounded-md inline-flex transition-all hover:opacity-90 hover:scale-95;
 	}
 }
 

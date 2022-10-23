@@ -4,8 +4,10 @@ import { ArrowLeft, ArrowLeftRight, ArrowRight } from 'lucide-react'
 import React, { useContext, useEffect, useState } from 'react'
 import InterfaceContext from '../../context/interface'
 import { message, thread } from '../../types/fb'
+import AudioCard from './AudioCard'
 import MessageCard from './MessageCard'
 import PhotoCard from './PhotoCard'
+import VideoCard from './VideoCard'
 
 const MediaCarousel = ({ media, type }: { media: message[]; type: string }) => {
 	const [mediaList, setMediaList] = useState(media)
@@ -55,7 +57,7 @@ const MediaCarousel = ({ media, type }: { media: message[]; type: string }) => {
 	}
 
 	return (
-		<div className='px-4 w-full relative flex flex-col items-center mt-2'>
+		<div className='pb-12 px-4 w-full relative flex flex-col items-center mt-2'>
 			<div className='mb-2' onClick={() => toggleSort()}>
 				Sort by{' '}
 				<span className='cursor-pointer font-bold inline-flex gap-x-1 items-center'>
@@ -105,6 +107,8 @@ const MediaCarousel = ({ media, type }: { media: message[]; type: string }) => {
 			<div className='w-full aspect-square'>
 				{type == 'messages' && <MessageCard message={activeMedia} />}
 				{type == 'photos' && <PhotoCard message={activeMedia} />}
+				{type == 'videos' && <VideoCard message={activeMedia} />}
+				{type == 'audio' && <AudioCard message={activeMedia} />}
 			</div>
 		</div>
 	)

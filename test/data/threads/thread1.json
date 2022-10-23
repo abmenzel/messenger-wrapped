@@ -83,6 +83,26 @@
 				"bumped_message": "Bob i'm good",
 				"is_bumped": false
 			}
+		},
+		{
+			"sender_id_INTERNAL": 2,
+			"sender_name": "Mallory",
+			"timestamp_ms": 1539945694897,
+			"type": "Generic",
+			"is_unsent": false,
+			"is_taken_down": false,
+			"bumped_message_metadata": {
+				"bumped_message": "Bob i'm good",
+				"is_bumped": false
+			},
+			"videos": [
+				{
+					"uri": "messages/inbox/thread1/videos/video1.mp4",
+					"media_path_INTERNAL": "",
+					"type_INTERNAL": "",
+					"creation_timestamp": 1539945694897
+				}
+			]
 		}
 	],
 	"title": "Bob, Alice and Mallory",
