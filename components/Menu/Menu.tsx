@@ -1,12 +1,20 @@
+import {
+	LayoutGrid,
+	Menu as BurgerMenu,
+	Play,
+	Search,
+	Upload,
+} from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import React, { useContext, useState } from 'react'
-import MenuIcon from '../../assets/icons/menu-icon.svg'
 import InterfaceContext from '../../context/interface'
 import { createAction } from '../../context/interface.reducer'
 import { Theme } from '../../context/interface.theme'
 import { Action } from '../../context/interface.types'
 import { menuItem } from '../../types/menu'
 import { StageName } from '../../types/stages'
+import MenuIcon from './MenuIcon'
 
 const MenuItem = ({ item, setOpen }: { item: menuItem; setOpen: Function }) => {
 	const className =
@@ -53,7 +61,7 @@ const MenuContent = ({
 }) => {
 	return (
 		<div
-			className={`${
+			className={`mb-4 ${
 				open ? '' : 'opacity-0 pointer-events-none translate-y-2'
 			} transition-all absolute bottom-12 rounded-md ${
 				theme.bgSecondary
@@ -72,18 +80,17 @@ const MenuContent = ({
 }
 
 const Menu = () => {
+	const router = useRouter()
 	const [open, setOpen] = useState(false)
 	const { state, dispatch } = useContext(InterfaceContext)
-	const { theme } = state
+	const { theme, timer } = state
 
 	const setStageByName = (stageName: StageName) => {
 		dispatch(createAction(Action.setStageByName, stageName))
 	}
 	// TODO
-	// Add link to pick group
 	// Add link to upload data
 	// Add link to share
-	// Add link to playground
 	// Add link to credits?
 
 	const menuData: menuItem[] = [
@@ -95,14 +102,31 @@ const Menu = () => {
 		},
 		{
 			type: 'function',
-			label: 'Pick group',
-			visible: () => state.threads?.length > 0,
-			trigger: () => setStageByName(StageName.Pick),
+			label: 'wrap',
+			visible: () => true,
+			trigger: () => {
+				router.push('/wrap')
+				setStageByName(StageName.Intro)
+			},
 		},
 		{
-			type: 'link',
-			label: 'Playground',
-			link: '/playground',
+			type: 'function',
+			label: 'Pick group',
+			visible: () => state.threads?.length > 0,
+			trigger: () => {
+				router.push('/wrap')
+				if (timer) clearTimeout(timer)
+				setStageByName(StageName.Pick)
+			},
+		},
+		{
+			type: 'function',
+			label: 'Explore',
+			trigger: () => {
+				router.push('/explore')
+				if (timer) clearTimeout(timer)
+				setStageByName(StageName.Pick)
+			},
 			visible: () => state.threadData != null,
 		},
 	]
@@ -115,11 +139,73 @@ const Menu = () => {
 				menuData={menuData}
 				setOpen={setOpen}
 			/>
-			<button
-				onClick={() => setOpen(!open)}
-				className={`transition-colors aspect-square rounded-md w-10 ${theme.bgSecondary} ${theme.fill} flex items-center p-1`}>
-				<MenuIcon height='100%' width='100%' viewBox='0 0 48 48' />
-			</button>
+			<nav>
+				<ul className='flex items-center gap-x-4'>
+					<li>
+						<MenuIcon
+							callback={() => {
+								router.push('/wrap')
+								if (timer) clearTimeout(timer)
+								setStageByName(StageName.Upload)
+							}}
+							label={'Upload'}
+							icon={<Upload size={20} />}
+						/>
+					</li>
+					<li
+						className={`${
+							state.threads.length == 0 &&
+							'pointer-events-none opacity-50'
+						}`}>
+						<MenuIcon
+							callback={() => {
+								router.push('/wrap')
+								if (timer) clearTimeout(timer)
+								setStageByName(StageName.Pick)
+							}}
+							label={'Pick'}
+							icon={<LayoutGrid size={20} />}
+						/>
+					</li>
+					<li
+						className={`${
+							!state.threadData &&
+							'pointer-events-none opacity-50'
+						}`}>
+						<MenuIcon
+							callback={() => {
+								router.push('/wrap')
+								if (timer) clearTimeout(timer)
+								setStageByName(StageName.Intro)
+							}}
+							label={'Wrap'}
+							icon={<Play size={20} />}
+						/>
+					</li>
+					<li
+						className={`${
+							!state.threadData &&
+							'pointer-events-none opacity-50'
+						}`}>
+						<MenuIcon
+							callback={() => {
+								router.push('/explore')
+								if (timer) clearTimeout(timer)
+								setStageByName(StageName.Pick)
+							}}
+							label={'Explore'}
+							icon={<Search size={20} />}
+						/>
+					</li>
+					<li>
+						<MenuIcon
+							callback={() => setOpen(!open)}
+							label={'Menu'}
+							icon={<BurgerMenu size={24} />}
+						/>
+					</li>
+				</ul>
+			</nav>
 		</div>
 	)
 }

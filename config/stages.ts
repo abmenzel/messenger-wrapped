@@ -9,7 +9,7 @@ export const stages: Stage[] = [
 	},
 	{
 		name: StageName.Friends,
-		time: 5000,
+		time: 3000,
 		theme: themes.light,
 	},
 	{

@@ -1,3 +1,4 @@
+import { Upload as UploadIcon } from 'lucide-react'
 import { useContext } from 'react'
 import InterfaceContext from '../context/interface'
 import Label from './Label'
@@ -23,8 +24,9 @@ const Upload = (props: any) => {
 				</p>
 				{uploadStatus.step == 0 ? (
 					<button
-						className={`${theme.bgSecondary} ${theme.textPrimary} btn-primary my-6`}
+						className={`${theme.bgSecondary} ${theme.textPrimary} btn-primary my-6 inline-flex items-center gap-x-2`}
 						onClick={openFileSelector}>
+						<UploadIcon size={18} />
 						{abortedUpload ? 'Please add data' : 'Add data'}
 					</button>
 				) : (

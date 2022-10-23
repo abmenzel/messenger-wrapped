@@ -28,8 +28,9 @@ const Layout = ({ children }: { children: ReactNode }) => {
 			className={`min-h-screen flex justify-center relative overflow-hidden ${theme.text}`}>
 			<div className='pointer-events-none grow bg-gradient-to-r from-black opacity-30 relative z-[5]' />
 			<div className='w-full max-w-sm flex items-center z-[5]'>
-				{children}
-				<div className='fixed z-10 bottom-0 max-w-sm w-full flex justify-center py-4'>
+				<div className='px-4 grow'>{children}</div>
+				<div
+					className={`fixed z-10 ${theme.gradientFrom} transition-colors bg-gradient-to-t bottom-0 max-w-sm w-full flex justify-center py-4 pt-16`}>
 					<Menu />
 				</div>
 			</div>
