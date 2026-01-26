@@ -14,11 +14,6 @@ This includes:
 
 The application communicates directly with the file system through the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API), meaning that no data needs to be uploaded remotely. Thereby the chat data is not shared or stored anywhere outside of the user's machine.
 
-## 🚣 Demo
-
-Try the [live demo](https://messenger-wrapped.vercel.app/).
-The demo reflects the **main branch**.
-
 ## Technologies
 
 - Next JS
